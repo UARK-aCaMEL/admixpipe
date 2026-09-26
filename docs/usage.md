@@ -164,8 +164,8 @@ Note that multiple profiles can be loaded, for example: `-profile test,docker` -
   - The same test data, run with the default ADMIXTURE settings
 - `docker`
   - A generic configuration profile to be used with [Docker](https://docker.com/)
-- `arm`
-  - Use together with `docker` on Apple Silicon and other ARM machines
+- `emulate_amd64`
+  - Use together with `docker` on Apple Silicon and other ARM machines, to run the x86-64 containers under emulation
 - `singularity`
   - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
 - `podman`

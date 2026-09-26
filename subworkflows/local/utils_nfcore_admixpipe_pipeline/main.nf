@@ -10,6 +10,7 @@
 
 include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
 include { paramsSummaryMap          } from 'plugin/nf-schema'
+include { paramsHelp                } from 'plugin/nf-schema'
 include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
 include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
 include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
@@ -30,17 +31,20 @@ workflow PIPELINE_INITIALISATION {
     version           // boolean: Display version and exit
     validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
     monochrome_logs   // boolean: Do not use coloured log outputs
-    nextflow_cli_args // array: List of positional nextflow CLI args
-    outdir            // string: The output directory where the results will be saved
-    input             // string: Path to input VCF or VCF.gz file
-    popmap            // string: path to popmap file
-    site_coords
-    geo_data_config
-    geo_data_dir
+    nextflow_cli_args //   array: List of positional nextflow CLI args
+    outdir            //  string: The output directory where the results will be saved
+    input             //  string: Path to input VCF or VCF.gz file
+    help              // boolean: Display help message and exit
+    help_full         // boolean: Show the full help message
+    show_hidden       // boolean: Show hidden parameters in the help message
+    popmap            //  string: Path to popmap file
+    site_coords       //  string: Path to site coordinates file (optional)
+    geo_data_config   //  string: Path to map layer JSON (optional)
+    geo_data_dir      //  string: Directory of map layer files (optional)
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     //
     // Print version and exit if required and dump pipeline parameters to JSON file
@@ -55,10 +59,33 @@ workflow PIPELINE_INITIALISATION {
     //
     // Validate parameters and generate parameter summary to stdout
     //
+    def command     = "nextflow run UARK-aCaMEL/admixpipe -profile <docker/singularity/.../institute> --input input.vcf[.gz] --popmap popmap.tsv --outdir <OUTDIR>"
+    def before_text = """
+------------------------------------------------------
+    aCaMEL/admixpipe ${workflow.manifest.version}
+    ${workflow.manifest.homePage}
+------------------------------------------------------
+"""
+    def after_text  = """
+If you use aCaMEL/admixpipe for your analysis please cite:
+
+* The pipeline and the tools it uses
+    https://github.com/UARK-aCaMEL/admixpipe/blob/master/CITATIONS.md
+
+* The nf-core framework
+    https://doi.org/10.1038/s41587-020-0439-x
+"""
+
     UTILS_NFSCHEMA_PLUGIN (
         workflow,
         validate_params,
-        null
+        null,
+        help,
+        help_full,
+        show_hidden,
+        before_text,
+        after_text,
+        command
     )
 
     //
@@ -193,6 +220,7 @@ workflow PIPELINE_COMPLETION {
 
     main:
     summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
+    def multiqc_reports = multiqc_report.toList()
 
     //
     // Completion email and summary
@@ -206,7 +234,7 @@ workflow PIPELINE_COMPLETION {
                 plaintext_email,
                 outdir,
                 monochrome_logs,
-                multiqc_report.toList()
+                multiqc_reports.getVal(),
             )
         }
 
@@ -459,7 +487,7 @@ def toolBibliographyText() {
 }
 
 def methodsDescriptionText(mqc_methods_yaml) {
-    // Convert  to a named map so can be used as with familar NXF ${workflow} variable syntax in the MultiQC YML file
+    // Convert  to a named map so can be used as with familiar NXF ${workflow} variable syntax in the MultiQC YML file
     def meta = [:]
     meta.workflow = workflow.toMap()
     meta["manifest_map"] = workflow.manifest.toMap()
@@ -490,4 +518,3 @@ def methodsDescriptionText(mqc_methods_yaml) {
 
     return description_html.toString()
 }
-

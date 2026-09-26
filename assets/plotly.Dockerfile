@@ -19,4 +19,3 @@ RUN pip install --no-cache-dir pandas plotly scipy
 
 # Set working directory
 WORKDIR /app
-
