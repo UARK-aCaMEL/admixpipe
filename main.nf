@@ -48,6 +48,10 @@ workflow ACAMEL_ADMIXPIPE {
         site_coords,
         geo_data,
         geo_data_dir,
+        params.multiqc_config,
+        params.multiqc_logo,
+        params.multiqc_methods_description,
+        params.outdir,
     )
     emit:
     multiqc_report = ADMIXPIPE.out.multiqc_report // channel: /path/to/multiqc_report.html
@@ -100,7 +104,6 @@ workflow {
         params.plaintext_email,
         params.outdir,
         params.monochrome_logs,
-        params.hook_url,
         ACAMEL_ADMIXPIPE.out.multiqc_report
     )
 }

@@ -13,7 +13,6 @@ include { paramsSummaryMap          } from 'plugin/nf-schema'
 include { paramsHelp                } from 'plugin/nf-schema'
 include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
 include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
-include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
 include { TABIX_TABIX               } from '../../../modules/nf-core/tabix/tabix/main'
@@ -85,7 +84,8 @@ If you use aCaMEL/admixpipe for your analysis please cite:
         show_hidden,
         before_text,
         after_text,
-        command
+        command,
+        false
     )
 
     //
@@ -215,7 +215,6 @@ workflow PIPELINE_COMPLETION {
     plaintext_email // boolean: Send plain-text email instead of HTML
     outdir          //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
-    hook_url        //  string: hook URL for notifications
     multiqc_report  //  string: Path to MultiQC report
 
     main:
@@ -239,13 +238,11 @@ workflow PIPELINE_COMPLETION {
         }
 
         completionSummary(monochrome_logs)
-        if (hook_url) {
-            imNotification(summary_params, hook_url)
-        }
+
     }
 
     workflow.onError {
-        log.error "Pipeline failed. Please refer to troubleshooting docs: https://nf-co.re/docs/usage/troubleshooting"
+        log.error "Pipeline failed. Please refer to troubleshooting docs for common issues: https://nf-co.re/docs/running/troubleshooting"
     }
 }
 
@@ -367,30 +364,35 @@ def validateInputParameters() {
 // any parameters passed that are not in the schema, and the exact command
 // line and run configuration.
 //
+//
+// HTML helpers for fullParamsSummaryMultiqc
+//
+def summaryEscape(v) {
+    return v == null ? '' : v.toString()
+        .replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        .replaceAll(/\r?\n/, ' ')
+}
+
+def summaryFormat(v) {
+    return (v == null || v.toString() == '') ? '<span style="color:#999999;">N/A</span>' : "<samp>${summaryEscape(v)}</samp>"
+}
+
+def summaryTable(List header, List rows) {
+    def out = ['<table class="table table-condensed table-hover" style="width:auto;">']
+    out << '<thead><tr>' + header.collect { h -> "<th>${h}</th>" }.join('') + '</tr></thead><tbody>'
+    rows.each { row -> out << '<tr>' + row.collect { c -> "<td>${c}</td>" }.join('') + '</tr>' }
+    out << '</tbody></table>'
+    return out
+}
+
 def fullParamsSummaryMultiqc(schema_filename) {
     def schema = new groovy.json.JsonSlurper().parse(file("${workflow.projectDir}/${schema_filename}"))
-
-    def esc = { v ->
-        v == null ? '' : v.toString()
-            .replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-            .replaceAll(/\r?\n/, ' ')
-    }
-    def fmt = { v ->
-        (v == null || v.toString() == '') ? '<span style="color:#999999;">N/A</span>' : "<samp>${esc(v)}</samp>"
-    }
-    def table = { List header, List rows ->
-        def out = ['<table class="table table-condensed table-hover" style="width:auto;">']
-        out << '<thead><tr>' + header.collect { "<th>${it}</th>" }.join('') + '</tr></thead><tbody>'
-        rows.each { row -> out << '<tr>' + row.collect { "<td>${it}</td>" }.join('') + '</tr>' }
-        out << '</tbody></table>'
-        return out
-    }
 
     def lines = []
 
     // Run information
     lines << '<h4>Command line</h4>'
-    lines << "<pre><code>${esc(workflow.commandLine)}</code></pre>"
+    lines << "<pre><code>${summaryEscape(workflow.commandLine)}</code></pre>"
     lines << '<h4>Run information</h4>'
     def run_info = [
         'Pipeline version' : workflow.manifest.version,
@@ -408,7 +410,7 @@ def fullParamsSummaryMultiqc(schema_filename) {
         'Project directory': workflow.projectDir,
         'User'             : workflow.userName
     ]
-    lines.addAll(table(['Field', 'Value'], run_info.collect { k, v -> ["<b>${k}</b>", fmt(v)] }))
+    lines.addAll(summaryTable(['Field', 'Value'], run_info.collect { k, v -> ["<b>${k}</b>", summaryFormat(v)] }))
 
     // Parameters, grouped as in the schema
     lines << '<h4>Parameters</h4>'
@@ -422,12 +424,12 @@ def fullParamsSummaryMultiqc(schema_filename) {
             def value   = params.containsKey(name) ? params[name] : null
             def changed = value?.toString() != spec['default']?.toString()
             def label   = changed ? "<b>${name}</b>" : name
-            [label, changed ? "<b>${fmt(value)}</b>" : fmt(value), fmt(spec['default'])]
+            [label, changed ? "<b>${summaryFormat(value)}</b>" : summaryFormat(value), summaryFormat(spec['default'])]
         }
         // Pipeline-specific groups are expanded; nf-core boilerplate groups are collapsed
         def boilerplate = group_id in ['institutional_config_options', 'max_job_request_options', 'generic_options']
-        lines << (boilerplate ? "<details><summary><b>${esc(group.title)}</b></summary>" : "<p style=\"font-size:110%\"><b>${esc(group.title)}</b></p>")
-        lines.addAll(table(['Parameter', 'Value', 'Default'], rows))
+        lines << (boilerplate ? "<details><summary><b>${summaryEscape(group.title)}</b></summary>" : "<p style=\"font-size:110%\"><b>${summaryEscape(group.title)}</b></p>")
+        lines.addAll(summaryTable(['Parameter', 'Value', 'Default'], rows))
         if (boilerplate) lines << '</details>'
     }
 
@@ -435,7 +437,7 @@ def fullParamsSummaryMultiqc(schema_filename) {
     def extra = params.keySet().findAll { !(it in seen) && !it.contains('-') }.sort()
     if (extra) {
         lines << '<p style="font-size:110%"><b>Other parameters (not in schema)</b></p>'
-        lines.addAll(table(['Parameter', 'Value'], extra.collect { [it, fmt(params[it])] }))
+        lines.addAll(summaryTable(['Parameter', 'Value'], extra.collect { [it, summaryFormat(params[it])] }))
     }
 
     String yaml_file_text  = "id: '${workflow.manifest.name.replace('/','-')}-summary'\n"
