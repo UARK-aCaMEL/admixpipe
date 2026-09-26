@@ -9,8 +9,8 @@ include { methodsDescriptionText   } from '../subworkflows/local/utils_nfcore_ad
 include { fullParamsSummaryMultiqc } from '../subworkflows/local/utils_nfcore_admixpipe_pipeline'
 
 include { SNPIO_FILTER } from '../modules/local/snpio/filter.nf'
-include { RUN_ADMIXPIPE } from '../subworkflows/local/run_admixpipe.nf'
-include { GENERATE_REPORT } from '../subworkflows/local/generate_report.nf'
+include { RUN_ADMIXPIPE } from '../subworkflows/local/run_admixpipe/main'
+include { GENERATE_REPORT } from '../subworkflows/local/generate_report/main'
 include { CUSTOMIZE_REPORT } from '../modules/local/report/customize_report.nf'
 
 /*

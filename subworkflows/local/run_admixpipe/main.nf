@@ -2,15 +2,15 @@
 // Run Steve Mussmann's Admixture Pipeline (AdmixPipe 3.0)
 //
 
-include { TABIX_BGZIP } from '../../modules/nf-core/tabix/bgzip/main'
-include { TABIX_TABIX } from '../../modules/nf-core/tabix/tabix/main'
-include { ADMIXTUREPIPELINE } from '../../modules/local/admixpipe/admixturepipeline.nf'
-include { CLUMPAK } from '../../modules/local/admixpipe/submitclumpak.nf'
-include { CVSUM } from '../../modules/local/admixpipe/cvsum.nf'
-include { DISTRUCT } from '../../modules/local/admixpipe/distructrerun.nf'
-include { EVALADMIX } from '../../modules/local/admixpipe/evaladmix.nf'
-include { BESTK } from '../../modules/local/bestK.nf'
-include { EVANNO } from '../../modules/local/evanno.nf'
+include { TABIX_BGZIP } from '../../../modules/nf-core/tabix/bgzip/main'
+include { TABIX_TABIX } from '../../../modules/nf-core/tabix/tabix/main'
+include { ADMIXTUREPIPELINE } from '../../../modules/local/admixpipe/admixturepipeline.nf'
+include { CLUMPAK } from '../../../modules/local/admixpipe/submitclumpak.nf'
+include { CVSUM } from '../../../modules/local/admixpipe/cvsum.nf'
+include { DISTRUCT } from '../../../modules/local/admixpipe/distructrerun.nf'
+include { EVALADMIX } from '../../../modules/local/admixpipe/evaladmix.nf'
+include { BESTK } from '../../../modules/local/bestk/main'
+include { EVANNO } from '../../../modules/local/evanno/main'
 
 workflow RUN_ADMIXPIPE {
     take:
