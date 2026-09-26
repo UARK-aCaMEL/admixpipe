@@ -1,7 +1,7 @@
 <h1>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/acamel_admixpipe_logo_dark.svg">
-    <img alt="aCaMEL/admixpipe" src="docs/images/acamel_admixpipe_logo_light.svg" width="400">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/acamel_admixpipe_logo_dark.png">
+    <img alt="aCaMEL/admixpipe" src="docs/images/acamel_admixpipe_logo_light.png" width="300">
   </picture>
 </h1>
 
@@ -28,10 +28,19 @@
 6. Map ancestry proportions per site (optional)
 7. Build an interactive report ([`MultiQC`](http://multiqc.info/))
 
-## Usage
+## Getting started
 
-> [!NOTE]
-> If you are new to Nextflow, please refer to [this page](https://www.nextflow.io/docs/latest/install.html) on how to set it up. A container engine (Docker, Singularity/Apptainer or Podman) is required. Make sure to test your setup with `-profile test,docker` before running the workflow on actual data.
+You need [Nextflow](https://www.nextflow.io/docs/latest/install.html) (≥ 23.04.0) and a container engine: Docker, Singularity/Apptainer or Podman. Conda is not supported.
+
+To check that everything works, and to see what the outputs look like, run the pipeline on the bundled test dataset. It contains 185 samples from 14 sampling sites, with 9,345 SNPs, site coordinates and a river-network map layer:
+
+```bash
+nextflow run UARK-aCaMEL/admixpipe -profile test,docker --outdir test_results
+```
+
+Use `-profile test,singularity` on HPC systems, or add `arm` on Apple Silicon (`-profile test,docker,arm`). When the run finishes, open `test_results/report/multiqc_report.html` in a web browser.
+
+## Usage
 
 First, prepare a population map: a tab-delimited file with no header, giving each sample (as named in the VCF) and its population.
 

@@ -2,17 +2,17 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="106.58955mm"
+   height="45.39555mm"
+   viewBox="0 0 106.58955 45.39555"
    version="1.1"
    id="svg1"
    xml:space="preserve"
-   inkscape:export-filename="acamel_gtseqdesign_logo_light.png"
+   inkscape:export-filename="acamel_admixpipe_logo_light.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    inkscape:version="1.3.2 (091e20e, 2023-11-25)"
-   sodipodi:docname="acamel_admixpipe_logo_light.svg"
+   sodipodi:docname="src_light.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -76,14 +76,15 @@
          stop-color="#25af64" /></linearGradient></defs><g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1"><g
+     id="layer1"
+     transform="translate(-4.1995883,-135.98666)"><g
        id="g4340"
        transform="matrix(0.20078786,0,0,0.20631097,-1.4664906,127.83193)"
        style="display:inline"><g
          id="layer3"
          style="display:inline"
          transform="matrix(0.32943143,0,0,0.3206123,19.873465,164.18058)"><rect
-           style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:45.15779535;stroke-dasharray:none"
+           style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:45.1578;stroke-dasharray:none"
            id="rect1"
            width="1611.4325"
            height="686.29492"

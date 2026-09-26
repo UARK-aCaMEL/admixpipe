@@ -1,5 +1,5 @@
 ---
-title: 'aCaMEL/admixpipe: a reproducible Nextflow pipeline for ADMIXTURE-based population structure analysis'
+title: "aCaMEL/admixpipe: a reproducible Nextflow pipeline for ADMIXTURE-based population structure analysis"
 tags:
   - Nextflow
   - nf-core
@@ -87,7 +87,7 @@ nf-core contributes community-agreed best practice: schema-validated parameters,
 
 # Research impact statement
 
-aCaMEL/admixpipe builds on AdmixPipe, whose two descriptions have accrued 46 and 8 citations (Crossref, September 2026). The pipeline has been applied in agency-funded conservation assessment. It provided hybrid screening (K up to 20, with 20 replicates per K) and spatial population structure analyses for the endemic Beaded Darter (*Etheostoma clinton*), in a State Wildlife Grant report to the Arkansas Game and Fish Commission [@Bruckerhoff2026]. Its sibling workflow, aCaMEL/hybridclassification, shares its filtering, ADMIXTURE and reporting components. It underpinned hybrid classification in a genomic assessment of Smallmouth Bass for the same agency [@Douglas2026]. The release includes a bundled test dataset with sampling coordinates and a vector layer, continuous integration that executes the full workflow, and user and output documentation.
+aCaMEL/admixpipe builds on AdmixPipe, whose two descriptions have accrued 46 and 8 citations (Crossref, September 2026). The pipeline has been applied in agency-funded conservation assessment. It provided hybrid screening (K up to 20, with 20 replicates per K) and spatial population structure analyses for the endemic Beaded Darter (_Etheostoma clinton_), in a State Wildlife Grant report to the Arkansas Game and Fish Commission [@Bruckerhoff2026]. Its sibling workflow, aCaMEL/hybridclassification, shares its filtering, ADMIXTURE and reporting components. It underpinned hybrid classification in a genomic assessment of Smallmouth Bass for the same agency [@Douglas2026]. The release includes a bundled test dataset with sampling coordinates and a vector layer, continuous integration that executes the full workflow, and user and output documentation.
 
 # AI usage disclosure
 

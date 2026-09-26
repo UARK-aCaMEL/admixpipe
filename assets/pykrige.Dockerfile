@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev \
     procps \
     ca-certificates \
- && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 # Help pip find GDAL headers (Fiona/Rasterio look for these)
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal \
