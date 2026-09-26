@@ -7,8 +7,6 @@
 ----------------------------------------------------------------------------------------
 */
 
-nextflow.enable.dsl = 2
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT FUNCTIONS / MODULES / SUBWORKFLOWS / WORKFLOWS
@@ -51,10 +49,8 @@ workflow ACAMEL_ADMIXPIPE {
         geo_data,
         geo_data_dir,
     )
-
     emit:
     multiqc_report = ADMIXPIPE.out.multiqc_report // channel: /path/to/multiqc_report.html
-
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,13 +61,11 @@ workflow ACAMEL_ADMIXPIPE {
 workflow {
 
     main:
-
     //
     // SUBWORKFLOW: Run initialisation tasks
     //
     PIPELINE_INITIALISATION (
         params.version,
-        params.help,
         params.validate_params,
         params.monochrome_logs,
         args,
@@ -94,7 +88,6 @@ workflow {
         PIPELINE_INITIALISATION.out.geo_data,
         PIPELINE_INITIALISATION.out.geo_data_dir,
     )
-
     //
     // SUBWORKFLOW: Run completion tasks
     //

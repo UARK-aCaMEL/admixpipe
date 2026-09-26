@@ -1,7 +1,9 @@
+bump_version: null
 lint:
   files_exist:
     - CODE_OF_CONDUCT.md
     - conf/igenomes.config
+    - conf/igenomes_ignored.config
     - assets/nf-core-admixpipe_logo_light.png
     - docs/images/nf-core-admixpipe_logo_light.png
     - docs/images/nf-core-admixpipe_logo_dark.png
@@ -25,10 +27,19 @@ lint:
   nextflow_config:
     - manifest.name
     - manifest.homePage
-nf_core_version: 2.14.1
+nf_core_version: 3.0.2
+org_path: null
 repository_type: pipeline
 template:
-  prefix: aCaMEL
-  skip:
+  author: Tyler K. Chafin
+  description: aCaMEL NextFlow DSL2 implementation of AdmixPipe
+  force: false
+  is_nfcore: false
+  name: admixpipe
+  org: aCaMEL
+  outdir: .
+  skip_features:
     - igenomes
     - fastqc
+  version: 1.0dev
+update: null

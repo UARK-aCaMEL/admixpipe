@@ -9,7 +9,7 @@
 [![GitHub Actions Linting Status](https://github.com/UARK-aCaMEL/admixpipe/actions/workflows/linting.yml/badge.svg)](https://github.com/UARK-aCaMEL/admixpipe/actions/workflows/linting.yml)
 [![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
 
-[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A523.04.0-23aa62.svg)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A524.04.2-23aa62.svg)](https://www.nextflow.io/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
 [![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/UARK-aCaMEL/admixpipe)
@@ -30,7 +30,7 @@
 
 ## Getting started
 
-You need [Nextflow](https://www.nextflow.io/docs/latest/install.html) (≥ 23.04.0) and a container engine: Docker, Singularity/Apptainer or Podman. Conda is not supported.
+You need [Nextflow](https://www.nextflow.io/docs/latest/install.html) (≥ 24.04.2) and a container engine: Docker, Singularity/Apptainer or Podman. Conda is not supported.
 
 To check that everything works, and to see what the outputs look like, run the pipeline on the bundled test dataset. It contains 185 samples from 14 sampling sites, with 9,345 SNPs, site coordinates and a river-network map layer:
 
