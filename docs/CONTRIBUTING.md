@@ -162,4 +162,7 @@ If you update images or graphics, follow the nf-core [style guidelines](https://
 
 ## Pipeline specific contribution guidelines
 
-<!-- TODO nf-core: Add any pipeline specific contribution guidelines here, such as coding styles, procedures, checklists etc. -->
+- Run the pipeline with `-profile test,docker` (add `emulate_amd64` on Apple Silicon) and check the MultiQC report before opening a pull request.
+- Report sections are built from the templates in `assets/multiqc_*.html` and the plotting scripts in `bin/`. Keep new sections consistent with these.
+- New parameters must be added to both `nextflow.config` and `nextflow_schema.json`, and validated in `subworkflows/local/utils_nfcore_admixpipe_pipeline/main.nf` where needed.
+- Cite any new tool in `CITATIONS.md` and in the methods text (`toolCitationText` / `toolBibliographyText`).
