@@ -29,7 +29,7 @@ def build_comment(meta_dict):
 
 def generate_plot(input_file, output_file, header_comment, bestk=None):
     # 1) read & sort
-    df = pd.read_csv(input_file, delim_whitespace=True)
+    df = pd.read_csv(input_file, sep=r"\s+")
     df['K'] = pd.to_numeric(df['K'], errors='raise')
     df = df.sort_values('K')
 
