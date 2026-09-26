@@ -7,8 +7,6 @@
 ----------------------------------------------------------------------------------------
 */
 
-nextflow.enable.dsl = 2
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT FUNCTIONS / MODULES / SUBWORKFLOWS / WORKFLOWS
@@ -18,20 +16,6 @@ nextflow.enable.dsl = 2
 include { ADMIXPIPE  } from './workflows/admixpipe'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_admixpipe_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_admixpipe_pipeline'
-
-include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_admixpipe_pipeline'
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    GENOME PARAMETER VALUES
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-// TODO nf-core: Remove this line if you don't need a FASTA file
-//   This is an example of how to use getGenomeAttribute() to fetch parameters
-//   from igenomes.config using `--genome`
-params.fasta = getGenomeAttribute('fasta')
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NAMED WORKFLOWS FOR PIPELINE
@@ -54,10 +38,8 @@ workflow ACAMEL_ADMIXPIPE {
     ADMIXPIPE (
         samplesheet
     )
-
     emit:
     multiqc_report = ADMIXPIPE.out.multiqc_report // channel: /path/to/multiqc_report.html
-
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,13 +50,11 @@ workflow ACAMEL_ADMIXPIPE {
 workflow {
 
     main:
-
     //
     // SUBWORKFLOW: Run initialisation tasks
     //
     PIPELINE_INITIALISATION (
         params.version,
-        params.help,
         params.validate_params,
         params.monochrome_logs,
         args,
@@ -88,7 +68,6 @@ workflow {
     ACAMEL_ADMIXPIPE (
         PIPELINE_INITIALISATION.out.samplesheet
     )
-
     //
     // SUBWORKFLOW: Run completion tasks
     //
