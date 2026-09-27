@@ -2,10 +2,8 @@
 title: "aCaMEL/admixpipe: a reproducible Nextflow pipeline for ADMIXTURE-based population structure analysis"
 tags:
   - Nextflow
-  - nf-core
   - population genetics
   - population structure
-  - ADMIXTURE
   - molecular ecology
   - conservation genomics
 authors:
@@ -16,6 +14,9 @@ authors:
   - name: Steven M. Mussmann
     orcid: 0000-0002-5237-5088
     affiliation: 2
+  - name: Bradley T. Martin
+    orcid: 0000-0002-3014-4692
+    affiliation: 3
   - name: Marlis R. Douglas
     orcid: 0000-0001-6234-3939
     affiliation: 1
@@ -29,74 +30,69 @@ affiliations:
   - name: Abernathy Fish Technology Center, U.S. Fish and Wildlife Service, Longview, Washington, United States
     index: 2
     ror: 04k7dar27
+  - name: Department of Biological Sciences, Seton Hall University, South Orange, New Jersey, United States
+    index: 3
+    ror: 007tn5k56
 date: 24 September 2026
 bibliography: paper.bib
 ---
 
 # Summary
 
-Most species are subdivided into partially isolated populations. Delineating these populations is foundational to evolutionary inference and to conservation, where genetic groups inform the designation of conservation and management units [@Funk2012; @Hohenlohe2021]. Model-based clustering has become the de facto standard for this task. It was popularised by STRUCTURE [@Pritchard2000; @Novembre2016] and extended to genome-scale data by ADMIXTURE [@Alexander2009]. These methods posit K ancestral populations with distinct allele frequencies and estimate each individual's ancestry as a mixture of them. A defensible analysis, however, is not a single model fit but a chain of dependent decisions. The data must be filtered, the model fitted repeatedly across K, replicate solutions reconciled, K chosen, and model adequacy assessed.
+Delineating population structure is fundamental to evolutionary inference and conservation decision-making, where genetically differentiated groups may inform the designation of conservation and management units [@Funk2012; @Hohenlohe2021]. Model-based clustering has become a *de facto* standard for this purpose, initially popularized by STRUCTURE [@Pritchard2000; @Novembre2016] and subsequently extended to genome-scale datasets by programs such as ADMIXTURE [@Alexander2009]. These methods posit *K* ancestral populations with distinct allele frequencies and estimate each individual’s ancestry as a mixture of contributions from them. Defensible inference, however, requires more than fitting a single model: data must be filtered, models fitted repeatedly across values of *K*, replicate solutions reconciled, an optimal *K* selected, and model adequacy evaluated.
 
-aCaMEL/admixpipe automates this chain end to end. From a VCF and a population map, it filters loci and individuals and runs replicated ADMIXTURE analyses. It then aligns replicates into clustering modes, applies alternative K-selection criteria, evaluates model fit and, optionally, projects ancestry onto maps. All results are consolidated into a single interactive report that also records the complete provenance of the analysis.
+aCaMEL/admixpipe automates this analytical sequence. Beginning with a VCF and population map, it filters loci and individuals, conducts replicated ADMIXTURE analyses, reconciles replicates into distinct clustering modes, applies alternative criteria for selecting *K*, evaluates model fit, and optionally projects ancestry estimates onto geographic maps. Results and analytical provenance are consolidated within a single interactive report.
 
 # Statement of need
 
-AdmixPipe [@Mussmann2020] was developed because pipelines existed to summarise replicated STRUCTURE runs but none served ADMIXTURE, the faster maximum-likelihood alternative widely applied to reduced-representation data from non-model organisms. It coupled SNP filtering and replicated ADMIXTURE runs with CLUMPAK [@Kopelman2015]. AdmixPipe v3 [@Mussmann2023] added evalAdmix [@GarciaErill2020] tests within the multimodal context identified by CLUMPAK and containerised the software stack. Its authors characterised population structure inference as "a fundamental, but non-trivial task" compounded by "hierarchical population structure, diverse analytical methods, and complex software dependencies". AdmixPipe nonetheless executes as a monolithic process on a single host, leaving parallelisation, fault recovery and portability to the user.
+Population-structure inference is sensitive to decisions made both before and after model fitting. Minor-allele-frequency thresholds [@Linck2019] and missing-data filters [@HuangKnowles2016] can alter the structure recovered; uneven sampling [@Puechmaille2016; @Wang2017] and hierarchical population structure [@Kalinowski2011; @Janes2017] can bias commonly used criteria for selecting *K*; and ancestry barplots invite overinterpretation when presented without formal evaluation of model adequacy [@Lawson2018]. Because these decisions are seldom reported comprehensively, ostensibly equivalent analyses may not be reproducible. A reanalysis of published STRUCTURE studies, for example, failed to recover the reported number of clusters in 30% of cases [@Gilbert2012].
 
-Inference is also sensitive to choices made on either side of model fitting:
+These limitations are consequential for applied conservation genetics, where analytical results increasingly inform management-unit delineation, listing decisions, and stocking policies. Nevertheless, a persistent divide remains between conservation-genetic research and its implementation [@Taylor2017; @Kadykalo2020; @Klutsch2021]. A systematic review identified definable management outcomes in only 49 of 115 applied studies [@Tkach2023]. Standardized workflows have therefore been proposed as one mechanism for strengthening the connection between conservation science and practice [@Holderegger2019].
 
-- minor allele frequency thresholds [@Linck2019] and missing-data filters [@HuangKnowles2016] alter the structure recovered;
-- uneven sampling [@Puechmaille2016; @Wang2017] and hierarchical structure [@Kalinowski2011; @Janes2017] bias common K-selection criteria;
-- barplots invite over-interpretation without formal assessment of fit [@Lawson2018].
-
-These choices are rarely reported in full. A reanalysis of published STRUCTURE studies failed to recover the reported number of clusters in 30% of cases [@Gilbert2012].
-
-These are not merely academic concerns. Genetic evidence increasingly informs the delineation of management units, listing decisions and stocking policy. Yet a persistent gap separates conservation genetics research from its implementation [@Taylor2017; @Kadykalo2020; @Klutsch2021]. A systematic review found definable management outcomes for only 49 of 115 applied studies [@Tkach2023]. When equivalent data are analysed under different, undocumented choices, results can appear contradictory, eroding their defensibility. Standardised workflows have been proposed as one bridge between science and practice [@Holderegger2019].
-
-aCaMEL/admixpipe addresses these needs for population geneticists, molecular ecologists, and agency geneticists and their contractors. It belongs to a suite of standardised workflows for applied conservation genetics from the Arkansas Conservation and Molecular Ecology Lab (aCaMEL), alongside workflows for genotyping-panel design and hybrid classification.
+aCaMEL/admixpipe addresses these methodological and translational needs for population geneticists, molecular ecologists, agency geneticists, and their contractors. It combines a validated analytical core with scalable execution, explicit parameterization, standardized diagnostics, and provenance-rich reporting.
 
 # State of the field
 
-Beyond STRUCTURE and ADMIXTURE [@Alexander2011], fastSTRUCTURE [@Raj2014] offers variational inference for large SNP datasets, and principal component analysis [@Patterson2006] provides a model-free complement. Post-processing remains fragmented across tools:
+The original AdmixPipe [@Mussmann2020] addressed the absence of standardized pipelines for replicated ADMIXTURE analyses, despite the availability of comparable workflows for STRUCTURE. It accepted a VCF and population map, filtered and converted the genotype data, executed ADMIXTURE repeatedly across candidate values of *K*, summarized cross-validation error, and prepared replicate outputs for analysis with CLUMPAK [@Kopelman2015]. AdmixPipe v3 [@Mussmann2023] retained this functionality while accepting PLINK input, incorporating a local CLUMPAK installation, distinguishing major and minor clustering modes, summarizing likelihood and cross-validation statistics within modes, and applying evalAdmix [@GarciaErill2020] to each replicate. Distribution within a Docker container standardized its otherwise complex software environment. Both generations nevertheless execute largely as monolithic, single-host analyses, leaving scheduling, fault recovery, and portability among computing environments to the user.
 
-- STRUCTURE HARVESTER [@Earl2012] implements the Evanno method [@Evanno2005];
-- CLUMPP [@Jakobsson2007] and CLUMPAK [@Kopelman2015] resolve label switching and multimodality among replicates;
-- pong [@Behr2016] and pophelper [@Francis2017] provide visualisation;
-- StructureSelector [@Li2018] aggregates alternative K estimators.
+Related software addresses individual components of this process. fastSTRUCTURE [@Raj2014] provides variational inference for large SNP datasets, while principal component analysis offers a model-free representation of genomic variation [@Patterson2006]. STRUCTURE HARVESTER [@Earl2012] implements the Evanno method [@Evanno2005]; CLUMPP [@Jakobsson2007] and CLUMPAK reconcile label switching and multimodality among replicates; pong [@Behr2016] and pophelper [@Francis2017] support visualization; and StructureSelector [@Li2018] integrates alternative estimators of *K*. This functionality remains distributed among programs with distinct inputs and execution requirements.
 
-AdmixPipe integrates ADMIXTURE, CLUMPAK and evalAdmix but omits filtering diagnostics, spatial summaries and workflow management. scalepopgen [@Upadhyay2024], a general Nextflow toolkit for population genomics, fits ADMIXTURE once per K and plots cross-validation error and ancestry proportions. It does not align replicates, identify modes or assess fit.
-
-Rather than reimplement this functionality, aCaMEL/admixpipe executes the published AdmixPipe container for ADMIXTURE, CLUMPAK, distruct [@Rosenberg2004] and evalAdmix, inheriting a validated core. Around it, the pipeline adds orchestration, filtering diagnostics, K selection, spatial summaries and provenance-rich reporting. Its authors include the developers of AdmixPipe, and filtering and summary statistics are provided by SNPio [@Martin2026].
+scalepopgen [@Upadhyay2024] provides a broader Nextflow framework for population-genomic analysis and includes ADMIXTURE, cross-validation summaries, and ancestry visualization. However, it performs one analysis per value of *K* and does not reconcile replicate solutions, distinguish alternative clustering modes, or evaluate their fit. aCaMEL/admixpipe instead preserves the replicated, mode-aware analysis developed through AdmixPipe and AdmixPipe v3 while re-engineering its execution as a modular Nextflow workflow. It adds SNPio-based preprocessing [@Martin2026], alternative criteria for selecting *K*, spatial summaries, and integrated reporting without reimplementing the established ADMIXTURE, CLUMPAK, distruct [@Rosenberg2004], or evalAdmix functionality.
 
 # Software design
 
 ## Workflow framework
 
-The pipeline is implemented in Nextflow DSL2 [@DiTommaso2017] on the nf-core template [@Ewels2020] (\autoref{fig:workflow}). Its cost scales with the number of K values multiplied by the number of replicates, and it consists largely of independent, long-running tasks. A workflow manager therefore provides parallel execution, checkpointed resumption and identical behaviour across workstations, clusters and cloud platforms [@Wratten2021]. Nextflow supports 18 schedulers or cloud services and seven container engines [@Langer2025].
+The pipeline is implemented in Nextflow DSL2 [@DiTommaso2017] using the nf-core template [@Ewels2020] (\autoref{fig:workflow}). Its computational burden scales with the product of the numbers of candidate *K* values and analytical replicates, most of which are independent, long-running tasks. Workflow orchestration therefore enables parallel execution, checkpointed resumption, and consistent behavior across workstations, high-performance computing systems, and cloud environments [@Wratten2021]. Nextflow currently supports 18 schedulers or cloud services and seven container engines [@Langer2025].
 
-nf-core contributes community-agreed best practice: schema-validated parameters, linting, continuous integration against bundled test data, and a library of reusable modules through which research communities can "adopt common standards progressively" [@Langer2025]. These conventions operationalise the FAIR principles for research software [@Wilkinson2016; @Barker2022], and they have measurable consequences. In an independent assessment, 51% of released nf-core pipeline revisions executed without failure, compared with 11% in the Snakemake Workflow Catalog. nf-core pipelines also remained reproducible for a median of 2.8 rather than 0.8 years [@Grayson2023].
+nf-core provides schema-validated parameters, automated linting, continuous integration with bundled test data, and a library of reusable modules through which research communities can “adopt common standards progressively” [@Langer2025]. These conventions operationalize FAIR principles for research software [@Wilkinson2016; @Barker2022]. Their practical effects are measurable: in an independent assessment, 51% of released nf-core pipeline revisions executed successfully, compared with 11% in the Snakemake Workflow Catalog, and remained reproducible for a median of 2.8 rather than 0.8 years [@Grayson2023].
 
-![Overview of aCaMEL/admixpipe. The inset shows the steps executed within AdmixPipe.\label{fig:workflow}](figure1.png)
+![Overview of aCaMEL/admixpipe. The inset shows the analytical steps inherited from AdmixPipe.\label{fig:workflow}](figure1.png)
 
 ## Design decisions
 
-- **Containers only.** Every step runs in a container [@Gruning2018]. Several dependencies, including the AdmixPipe stack, are distributed as purpose-built images rather than Conda packages. The pipeline therefore supports Docker, Singularity/Apptainer and Podman but not Conda, trading package-manager flexibility for an identical runtime environment.
-- **Filtering in SNPio.** Delegating filtering to SNPio [@Martin2026] allows missingness per sample and per population to be reported before and after filtering, and locus attrition to be attributed to each filter. Pairwise F~~ST~~ and PCA are provided as model-free comparisons. Loci are physically thinned by default, consistent with ADMIXTURE's assumption of independence among loci.
-- **K selection as a reported choice.** Five criteria are implemented: cross-validation error, Evanno ΔK, and the elbow of L(K), L′(K) or |L″(K)|. The chosen criterion determines only which K is emphasised. Barplots, evalAdmix residual correlations and maps are produced for every K, since no single criterion is reliable across demographic scenarios [@Janes2017; @Puechmaille2016].
-- **Standardisation by construction.** Filters are applied in a fixed order under documented defaults. All results are consolidated into a single self-contained MultiQC [@Ewels2016] report, optionally with interactive maps of site-level ancestry over user-supplied vector layers. The report records the command line, pipeline revision, configuration profiles and every parameter value against its default, flagging deviations. It also generates a methods paragraph citing each tool used. It thereby automates the reporting recommended by @Gilbert2012, making analyses comparable across studies and auditable by those who commission them. Because the aCaMEL workflows share modules for filtering, ADMIXTURE execution and reporting, these conventions propagate across the suite.
+- **Containers only.** Every process executes within a container [@Gruning2018]. Because several dependencies—including the AdmixPipe stack—are distributed as purpose-built images rather than Conda packages, the pipeline supports Docker, Singularity/Apptainer, and Podman but not Conda. This design exchanges package-manager flexibility for a consistent, versioned runtime environment.
+
+- **Filtering in SNPio.** Delegating variant filtering to SNPio [@Martin2026] allows missingness to be quantified per individual and population before and after filtering, while attributing locus attrition to individual filters. Pairwise *F*~ST~ and PCA provide model-free comparisons. Loci are physically thinned by default to better satisfy ADMIXTURE’s assumption of independence among markers.
+
+- **Selection of *K* as an explicit analytical choice.** Five criteria are implemented: cross-validation error [@Alexander2011], Evanno Δ*K* [@Evanno2005], and the elbow of *L*(*K*), *L*′(*K*), or |*L*″(*K*)|. The selected criterion determines only which value of *K* is emphasized. Ancestry barplots, evalAdmix residual correlations, and maps are generated for every candidate value because no criterion performs reliably across all demographic scenarios [@Janes2017; @Puechmaille2016].
+
+- **Standardization and provenance.** Filters are applied in a fixed order under documented defaults, and all outputs are consolidated within a self-contained MultiQC report [@Ewels2016]. The report presents results as interactive figures and can include maps of site-level ancestry over user-supplied vector layers. It records the command line, pipeline and tool versions, configuration profiles, and complete parameter set, while also generating a methods summary with citations for the software used. These features automate the reporting practices recommended by @Gilbert2012, facilitating comparisons among studies and enabling analyses to be audited.
 
 # Research impact statement
 
-aCaMEL/admixpipe builds on AdmixPipe, whose two descriptions have accrued 46 and 8 citations (Crossref, September 2026). The pipeline has been applied in agency-funded conservation assessment. It provided hybrid screening (K up to 20, with 20 replicates per K) and spatial population structure analyses for the endemic Beaded Darter (_Etheostoma clinton_), in a State Wildlife Grant report to the Arkansas Game and Fish Commission [@Bruckerhoff2026]. Its sibling workflow, aCaMEL/hybridclassification, shares its filtering, ADMIXTURE and reporting components. It underpinned hybrid classification in a genomic assessment of Smallmouth Bass for the same agency [@Douglas2026]. The release includes a bundled test dataset with sampling coordinates and a vector layer, continuous integration that executes the full workflow, and user and output documentation.
+aCaMEL/admixpipe extends an established analytical lineage: by September 2026, the two publications describing AdmixPipe had accrued 46 and eight citations, respectively, according to Crossref. The Nextflow implementation has already supported agency-funded conservation assessments. It was used to screen for hybridization across values of *K* up to 20, with 20 replicates per value, and to characterize spatial population structure in the endemic Beaded Darter (*Etheostoma clinton*) for a State Wildlife Grant report prepared for the Arkansas Game and Fish Commission [@Bruckerhoff2026]. Its companion workflow, aCaMEL/hybridclassification, shares its filtering, ADMIXTURE, and reporting components and supported hybrid classification in a genomic assessment of Smallmouth Bass conducted for the same agency [@Douglas2026]. The release includes a bundled test dataset with sampling coordinates and a vector layer, continuous integration that exercises the complete workflow, and comprehensive user and output documentation.
 
 # AI usage disclosure
 
-<!-- Authors: confirm this statement reflects all AI use across the project before submission. -->
+<!-- Authors: confirm that this statement accurately describes all uses of generative AI across the project before submission. -->
 
-Generative AI (Claude Opus 5.5, Anthropic, via Claude Code) assisted with this release. It was used to draft the user documentation and parameter schema, implement the report's parameter summary, identify and fix workflow bugs, verify references, and draft this paper. All AI-assisted changes were reviewed, edited and tested by the authors. The authors made all design decisions and take responsibility for the software and the paper.
+Generative AI tools, including Claude Opus 5.5 (Anthropic, accessed through Claude Code) and OpenAI Codex, assisted with preparation of the software release and manuscript. Their uses included drafting documentation and the parameter schema, implementing the report’s parameter summary, identifying and correcting workflow defects, verifying references, and assisting with manuscript drafting and revision. The authors reviewed, edited, and tested all AI-assisted contributions, made all scientific and software-design decisions, and accept full responsibility for the software and manuscript.
 
 # Acknowledgements
 
-We thank Bradley T. Martin for SNPio and the nf-core community for the pipeline template. Applications of the pipeline were supported by the U.S. Fish and Wildlife Service State Wildlife Grants Program through the Arkansas Game and Fish Commission (AR-T-F22AF03392), and by the Arkansas Game and Fish Commission (SL4124). M.R.D. and M.E.D. acknowledge support from the Bruker Professorship in Life Sciences and the 21st Century Chair in Global Change Biology, respectively, at the University of Arkansas. The funders had no role in the design of the software or the preparation of this paper.
+We thank the nf-core community for providing the pipeline template. Applications of the pipeline were supported by the U.S. Fish and Wildlife Service State Wildlife Grants Program through the Arkansas Game and Fish Commission (AR-T-F22AF03392) and by the Arkansas Game and Fish Commission (SL4124). M.R.D. and M.E.D. acknowledge support from the Bruker Professorship in Life Sciences and the 21st Century Chair in Global Change Biology, respectively, at the University of Arkansas. The funders had no role in the design of the software or preparation of the manuscript.
+
+Links to non-Service websites do not imply official U.S. Fish and Wildlife Service endorsement of the opinions or ideas expressed therein or guarantee the validity of the information provided. The findings, conclusions, and opinions expressed in this article are those of the authors and do not necessarily represent the views of the U.S. Fish and Wildlife Service.
 
 # References
