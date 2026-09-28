@@ -14,7 +14,24 @@ nextflow_pipeline {
 
         then {
             // stable_path: All files + folders in ${params.outdir}/ with a stable path (including file name)
-            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: [
+                // timestamped Nextflow reports
+                'pipeline_info/*.{html,json,txt}',
+                // CLUMPAK names its job zip and summary PDF after the epoch-ms job id
+                'clumpak/clumpakOutput/*.zip',
+                'clumpak/clumpakOutput/job_*_pipeline_summary.pdf',
+                // CLUMPAK, distruct and evalAdmix only write MinorCluster/MinClust outputs if MCL finds
+                // more than one mode for a K, which depends on the randomly seeded ADMIXTURE K>=2 replicates
+                'clumpak/clumpakOutput/K=*.MinorCluster*.png',
+                'clumpak/clumpakOutput/K=*/MinorCluster*',
+                'clumpak/clumpakOutput/K=*/MinorCluster*/**',
+                'distruct/*.MinorCluster*',
+                'distruct/clumpakOutput/best_results/*.MinorCluster*',
+                'evaladmix/*MinClust*',
+                // SNPio random table id (PCA data) and hashed HDF5 cache name
+                'snpio/snpio_filter/multiqc/multiqc_report_data/table-*.txt',
+                'snpio/snpio_filter/test_output/data/vcf/nremover/vcf_attributes_filtered_*.h5'
+            ])
             // stable_content: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
             assert workflow.success
