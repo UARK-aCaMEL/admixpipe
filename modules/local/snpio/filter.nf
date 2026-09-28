@@ -2,7 +2,7 @@ process SNPIO_FILTER {
     tag "$meta.id"
     label 'process_medium'
 
-    container 'docker.io/btmartin721/snpio:1.6.10'
+    container 'docker.io/btmartin721/snpio:1.7.5'
 
     input:
     tuple val(meta), path(vcf)
@@ -21,6 +21,12 @@ process SNPIO_FILTER {
     def args   = task.ext.args ?: ''
 
     """
+    # The SNPio image keeps HOME and its numba/matplotlib caches in a directory
+    # that the host user the docker profile runs as (-u \$(id -u):\$(id -g)) cannot enter.
+    export HOME=\$PWD
+    export NUMBA_CACHE_DIR=\$PWD/.numba_cache
+    export MPLCONFIGDIR=\$PWD/.mplconfig
+
     snpio_filter.py \\
         --vcf ${vcf} \\
         --popmap ${popmap} \\
@@ -34,7 +40,7 @@ process SNPIO_FILTER {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        SNPio: 1.6.10
+        SNPio: \$(python -c "import snpio; print(snpio.__version__)")
     END_VERSIONS
     """
 }

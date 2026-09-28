@@ -1,16 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import inspect
 import os
 from snpio import NRemover2, VCFReader, SNPioMultiQC, PopGenStatistics
-
-
-def accepts(func, name):
-    """True if callable `func` takes a parameter called `name`."""
-    try:
-        return name in inspect.signature(func).parameters
-    except (TypeError, ValueError):
-        return False
 
 
 def get_prefix_from_vcf_path(vcf_path):
@@ -82,8 +73,8 @@ def main():
     prefix = get_prefix_from_vcf_path(args.vcf)
 
     # read data. The report uses SNPio's data tables, not its images, so
-    # skip static plots where this SNPio version supports it.
-    reader_kwargs = dict(
+    # static plots are skipped unless --save_plots is given.
+    gd = VCFReader(
         filename=args.vcf,
         popmapfile=args.popmap,
         force_popmap=True,
@@ -92,10 +83,8 @@ def main():
         plot_fontsize=8,
         plot_dpi=300,
         prefix=prefix,
+        save_plots=args.save_plots,
     )
-    if accepts(VCFReader.__init__, "save_plots"):
-        reader_kwargs["save_plots"] = args.save_plots
-    gd = VCFReader(**reader_kwargs)
 
     # generate missingness reports
     gd.missingness_reports()
@@ -119,15 +108,11 @@ def main():
     gd_filt.write_vcf(output_vcf)
 
     # Compute pop-gen summary statistics on the filtered object
-    # SNPio >= 1.6.13 renamed fst_method to method
     pgs = PopGenStatistics(gd_filt)
-    method_arg = (
-        "method" if accepts(pgs.summary_statistics, "method") else "fst_method"
-    )
     pgs.summary_statistics(
         n_reps=args.permutations,
+        method="permutation",
         n_jobs=args.jobs,
-        **{method_arg: "permutation"},
     )
     pgs.pca()
 
