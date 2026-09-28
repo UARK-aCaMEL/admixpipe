@@ -8,13 +8,13 @@ process SAMPLE_SUMMARY {
         tuple val(meta), path(snpio_report_data)
         tuple val(meta2), path(inds_pre)
         tuple val(meta3), path(inds_post)
+        path(header)
 
     output:
         path("sample_summary_mqc.json"), emit: summary_txt
         path("versions.yml"), emit: versions
 
     script:
-    def args = task.ext.args ?: ''
 
     """
     echo "🔍 Finding input files..."
@@ -27,7 +27,7 @@ process SAMPLE_SUMMARY {
         --inds-post ${inds_post} \\
         --miss-pre \$miss1 \\
         --miss-post \$miss2 \\
-        --header ${baseDir}/assets/multiqc_sample_stats.html \\
+        --header ${header} \\
         --output sample_summary_mqc.json
 
     pandas_version=\$(python3 -c 'import pandas; print(pandas.__version__)')

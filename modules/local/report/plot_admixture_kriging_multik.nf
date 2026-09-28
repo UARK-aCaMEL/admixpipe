@@ -11,6 +11,8 @@ process PLOT_ADMIXTURE_KRIGING_MULTIK {
     tuple val(meta3),  path(pops)         // one pop/site ID per line
     tuple val(meta4),  path(site_coords)  // TSV: ID,Lat,Lon
     tuple val(meta5), path(geo_data)
+    path(template_disc)
+    path(template_div)
 
     output:
     path("multik_kriging_discrete.html"),           emit: html_discrete
@@ -29,8 +31,8 @@ process PLOT_ADMIXTURE_KRIGING_MULTIK {
         --site_coords  ${site_coords} \\
         --out_prefix   "multik" \\
         --geotiff_dir    "geotiff" \\
-        --template_disc   ${baseDir}/assets/multiqc_kriging_discrete_multik.html \\
-        --template_div    ${baseDir}/assets/multiqc_kriging_simpson_multik.html \\
+        --template_disc   ${template_disc} \\
+        --template_div    ${template_div} \\
         --grid_nx 400 --grid_ny 400 \\
         --jobs 1 \\
         ${geo_data_arg} \\

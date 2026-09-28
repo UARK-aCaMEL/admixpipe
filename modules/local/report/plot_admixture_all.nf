@@ -9,6 +9,7 @@ process PLOT_ADMIXTURE_MULTIK {
         tuple val(meta2), path(inds)
         tuple val(meta3), path(pops)
         tuple val(meta4), path(bestk_file)
+        path(template)
     output:
         path("admixture_allk_mqc.html"), emit: admixture_html
         path("versions.yml")   , emit: versions
@@ -22,7 +23,7 @@ process PLOT_ADMIXTURE_MULTIK {
         --indir ${best_results} \\
         --inds ${inds} \\
         --pops ${pops} \\
-        --template ${baseDir}/assets/multiqc_admixture_allk.html \\
+        --template ${template} \\
         --out "admixture_allk_mqc.html" \\
         --bestk \$bestk \\
         ${args}

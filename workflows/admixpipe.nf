@@ -148,7 +148,7 @@ workflow ADMIXPIPE {
     )
 
     // Customise report header (aCaMEL logo)
-    CUSTOMIZE_REPORT( MULTIQC.out.report.map { _meta, report -> report } )
+    CUSTOMIZE_REPORT( MULTIQC.out.report.map { _meta, report -> report }, file("${projectDir}/docs/images/logo.b64", checkIfExists: true) )
 
     emit:
     multiqc_report = CUSTOMIZE_REPORT.out.report.toList() // channel: /path/to/multiqc_report.html

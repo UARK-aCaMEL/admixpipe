@@ -9,6 +9,7 @@ process STAGE_GEODATA_LAYERS {
         tuple val(meta2), path(dir)
     output:
         tuple val(meta), path("geo_data_files"), emit: geo_data_dir
+        tuple val("${task.process}"), val('python'), eval("python --version 2>&1 | sed 's/Python //'"), topic: versions, emit: versions_python
 
     script:
     def args   = task.ext.args ?: ''

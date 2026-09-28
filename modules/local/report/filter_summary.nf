@@ -9,17 +9,17 @@ process FILTER_SUMMARY {
 
     input:
         tuple val(meta), path(snpio_pre)
+        path(template)
 
     output:
         path("sankey_mqc.html"), emit: sankey_html
 
     script:
-    def args = task.ext.args ?: ''
 
     """
     html=\$(find -L ${snpio_pre} -type f -name 'filtering_results_sankey*.html' | head -n1)
 
-    cat ${baseDir}/assets/multiqc_sankey.html > sankey_mqc.html
+    cat ${template} > sankey_mqc.html
     cat \$html >> sankey_mqc.html
     """
 }

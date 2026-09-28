@@ -39,16 +39,16 @@ workflow GENERATE_REPORT {
     geo_data_dir
 
     main:
-    ch_versions = Channel.empty()
-    ch_mqc_files = Channel.empty()
+    ch_versions = channel.empty()
+    ch_mqc_files = channel.empty()
 
     //CV plot
-    PLOT_CV( cv_file, bestk_file )
+    PLOT_CV( cv_file, bestk_file, file("${projectDir}/assets/multiqc_cv.html", checkIfExists: true) )
     ch_versions = ch_versions.mix( PLOT_CV.out.versions )
     ch_mqc_files = ch_mqc_files.mix( PLOT_CV.out.cv_html )
 
     //Evanno plot
-    PLOT_EVANNO( evanno, bestk_file )
+    PLOT_EVANNO( evanno, bestk_file, file("${projectDir}/assets/multiqc_evanno.html", checkIfExists: true) )
     ch_versions = ch_versions.mix( PLOT_EVANNO.out.versions )
     ch_mqc_files = ch_mqc_files.mix( PLOT_EVANNO.out.evanno_html )
 
@@ -57,7 +57,8 @@ workflow GENERATE_REPORT {
     PLOT_ADMIXTURE(
         clumpp,
         inds,
-        pops
+        pops,
+        file("${projectDir}/assets/multiqc_admixture_bestk.html", checkIfExists: true)
     )
     ch_mqc_files = ch_mqc_files.mix( PLOT_ADMIXTURE.out.admixture_html )
     ch_versions = ch_versions.mix( PLOT_ADMIXTURE.out.versions )
@@ -67,7 +68,8 @@ workflow GENERATE_REPORT {
         best_results,
         inds,
         pops,
-        bestk_file
+        bestk_file,
+        file("${projectDir}/assets/multiqc_admixture_allk.html", checkIfExists: true)
     )
     ch_mqc_files = ch_mqc_files.mix( PLOT_ADMIXTURE_MULTIK.out.admixture_html )
     ch_versions = ch_versions.mix( PLOT_ADMIXTURE_MULTIK.out.versions )
@@ -83,7 +85,8 @@ workflow GENERATE_REPORT {
                 inds,
                 pops,
                 site_coords,
-                STAGE_GEODATA_LAYERS.out.geo_data_dir
+                STAGE_GEODATA_LAYERS.out.geo_data_dir,
+                file("${projectDir}/assets/multiqc_admixture_spatial.html", checkIfExists: true)
             )
             ch_mqc_files = ch_mqc_files.mix( PLOT_ADMIXTURE_SPATIAL.out.plot_html )
             ch_versions = ch_versions.mix( PLOT_ADMIXTURE_SPATIAL.out.versions )
@@ -94,7 +97,9 @@ workflow GENERATE_REPORT {
                     inds,
                     pops,
                     site_coords,
-                    STAGE_GEODATA_LAYERS.out.geo_data_dir
+                    STAGE_GEODATA_LAYERS.out.geo_data_dir,
+                    file("${projectDir}/assets/multiqc_kriging_discrete.html", checkIfExists: true),
+                    file("${projectDir}/assets/multiqc_kriging_simpson.html", checkIfExists: true)
                 )
                 ch_mqc_files = ch_mqc_files.mix( PLOT_ADMIXTURE_KRIGING.out.html_discrete )
                     .mix( PLOT_ADMIXTURE_KRIGING.out.html_simpson )
@@ -105,7 +110,9 @@ workflow GENERATE_REPORT {
                     inds,
                     pops,
                     site_coords,
-                    STAGE_GEODATA_LAYERS.out.geo_data_dir
+                    STAGE_GEODATA_LAYERS.out.geo_data_dir,
+                    file("${projectDir}/assets/multiqc_kriging_discrete_multik.html", checkIfExists: true),
+                    file("${projectDir}/assets/multiqc_kriging_simpson_multik.html", checkIfExists: true)
                 )
             }
 
@@ -115,7 +122,8 @@ workflow GENERATE_REPORT {
                 inds,
                 pops,
                 site_coords,
-                STAGE_GEODATA_LAYERS.out.geo_data_dir
+                STAGE_GEODATA_LAYERS.out.geo_data_dir,
+                file("${projectDir}/assets/multiqc_admixture_spatial_multik.html", checkIfExists: true)
             )
             ch_mqc_files = ch_mqc_files.mix( PLOT_ADMIXTURE_SPATIAL_MULTIK.out.plot_html )
             ch_versions = ch_versions.mix( PLOT_ADMIXTURE_SPATIAL_MULTIK.out.versions )
@@ -126,7 +134,8 @@ workflow GENERATE_REPORT {
                 inds,
                 pops,
                 site_coords,
-                tuple( [], [] )
+                tuple( [], [] ),
+                file("${projectDir}/assets/multiqc_admixture_spatial.html", checkIfExists: true)
             )
             ch_mqc_files = ch_mqc_files.mix( PLOT_ADMIXTURE_SPATIAL.out.plot_html )
             ch_versions = ch_versions.mix( PLOT_ADMIXTURE_SPATIAL.out.versions )
@@ -137,7 +146,9 @@ workflow GENERATE_REPORT {
                     inds,
                     pops,
                     site_coords,
-                    tuple( [], [] )
+                    tuple( [], [] ),
+                    file("${projectDir}/assets/multiqc_kriging_discrete.html", checkIfExists: true),
+                    file("${projectDir}/assets/multiqc_kriging_simpson.html", checkIfExists: true)
                 )
                 ch_mqc_files = ch_mqc_files.mix( PLOT_ADMIXTURE_KRIGING.out.html_discrete )
                     .mix( PLOT_ADMIXTURE_KRIGING.out.html_simpson )
@@ -148,7 +159,9 @@ workflow GENERATE_REPORT {
                     inds,
                     pops,
                     site_coords,
-                    tuple( [], [] )
+                    tuple( [], [] ),
+                    file("${projectDir}/assets/multiqc_kriging_discrete_multik.html", checkIfExists: true),
+                    file("${projectDir}/assets/multiqc_kriging_simpson_multik.html", checkIfExists: true)
                 )
             }
 
@@ -157,7 +170,8 @@ workflow GENERATE_REPORT {
                 inds,
                 pops,
                 site_coords,
-                tuple( [], [] )
+                tuple( [], [] ),
+                file("${projectDir}/assets/multiqc_admixture_spatial_multik.html", checkIfExists: true)
             )
             ch_mqc_files = ch_mqc_files.mix( PLOT_ADMIXTURE_SPATIAL_MULTIK.out.plot_html )
             ch_versions = ch_versions.mix( PLOT_ADMIXTURE_SPATIAL_MULTIK.out.versions )
@@ -166,7 +180,7 @@ workflow GENERATE_REPORT {
     }
 
     //EvalAdmix (best and all K)
-    PLOT_EVALADMIX( qfilepaths, fam, corres, bestk_file)
+    PLOT_EVALADMIX( qfilepaths, fam, corres, bestk_file, file("${projectDir}/assets/multiqc_evaladmix_allk.html", checkIfExists: true), file("${projectDir}/assets/multiqc_evaladmix_bestk.html", checkIfExists: true))
     ch_mqc_files = ch_mqc_files.mix( PLOT_EVALADMIX.out.allk_html )
     ch_mqc_files = ch_mqc_files.mix( PLOT_EVALADMIX.out.bestk_html )
 
@@ -174,37 +188,42 @@ workflow GENERATE_REPORT {
     BCFTOOLS_QUERY_PRE( vcf_pre, tbi_pre )
     BCFTOOLS_QUERY_POST( vcf_post, tbi_post )
     ch_versions = ch_versions.mix( BCFTOOLS_QUERY_PRE.out.versions )
+    ch_versions = ch_versions.mix( BCFTOOLS_QUERY_POST.out.versions )
 
     //SNPio sample missingness
     SAMPLE_SUMMARY(
         snpio_report_data,
         BCFTOOLS_QUERY_PRE.out.samples,
-        BCFTOOLS_QUERY_POST.out.samples
+        BCFTOOLS_QUERY_POST.out.samples,
+        file("${projectDir}/assets/multiqc_sample_stats.html", checkIfExists: true)
     )
     ch_mqc_files = ch_mqc_files.mix( SAMPLE_SUMMARY.out.summary_txt )
     ch_versions = ch_versions.mix( SAMPLE_SUMMARY.out.versions )
 
     //SNPio sample missingness
     POP_SUMMARY(
-        snpio_report_data
+        snpio_report_data,
+        file("${projectDir}/assets/multiqc_pop_stats.html", checkIfExists: true)
     )
     ch_mqc_files = ch_mqc_files.mix( POP_SUMMARY.out.summary_txt )
     ch_versions = ch_versions.mix( POP_SUMMARY.out.versions )
 
     //SNPio sample missingness
     PLOT_PAIRWISE_FST(
-        snpio_report_data
+        snpio_report_data,
+        file("${projectDir}/assets/multiqc_pairwise_fst.html", checkIfExists: true)
     )
     ch_mqc_files = ch_mqc_files.mix( PLOT_PAIRWISE_FST.out.plot_html )
     ch_versions = ch_versions.mix( PLOT_PAIRWISE_FST.out.versions )
 
     //SNPio sankey
-    FILTER_SUMMARY( snpio_pre )
+    FILTER_SUMMARY( snpio_pre, file("${projectDir}/assets/multiqc_sankey.html", checkIfExists: true) )
     ch_mqc_files = ch_mqc_files.mix( FILTER_SUMMARY.out.sankey_html )
 
     //SNPio PCA
     PLOT_PCA(
-        snpio_report_data
+        snpio_report_data,
+        file("${projectDir}/assets/multiqc_pca.html", checkIfExists: true)
     )
     ch_mqc_files = ch_mqc_files.mix( PLOT_PCA.out.plot_html )
     ch_versions = ch_versions.mix( PLOT_PCA.out.versions )

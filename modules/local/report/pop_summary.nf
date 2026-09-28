@@ -6,13 +6,13 @@ process POP_SUMMARY {
 
     input:
         tuple val(meta), path(snpio_report_data)
+        path(header)
 
     output:
         path("pop_summary_mqc.json"), emit: summary_txt
         path("versions.yml"), emit: versions
 
     script:
-    def args = task.ext.args ?: ''
 
     """
     echo "🔍 Finding input files..."
@@ -23,7 +23,7 @@ process POP_SUMMARY {
     pop_summary.py \\
         --miss-pre \$miss1 \\
         --miss-post \$miss2 \\
-        --header ${baseDir}/assets/multiqc_pop_stats.html \\
+        --header ${header} \\
         --output pop_summary_mqc.json
 
     pandas_version=\$(python3 -c 'import pandas; print(pandas.__version__)')

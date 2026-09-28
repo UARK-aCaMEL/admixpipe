@@ -9,6 +9,8 @@ process PLOT_EVALADMIX {
         tuple val(meta2), path(fam)
         tuple val(meta3), path(corres)
         tuple val(meta4), path(bestk_file)
+        path(template_allk)
+        path(template_bestk)
 
     output:
         path("evaladmix_allk_mqc.html"), emit: allk_html
@@ -24,10 +26,10 @@ process PLOT_EVALADMIX {
             --workdir . \\
             --qfilePaths ${qfilepaths} \\
             --allk_html evaladmix_allk_mqc.html \\
-            --template_allk ${baseDir}/assets/multiqc_evaladmix_allk.html \\
+            --template_allk ${template_allk} \\
             --best_k \$bestk \\
             --bestk_html evaladmix_bestk_mqc.html \\
-            --template_bestk ${baseDir}/assets/multiqc_evaladmix_bestk.html
+            --template_bestk ${template_bestk}
 
     plotly_version=\$(python3 -c 'import plotly; print(plotly.__version__)')
 

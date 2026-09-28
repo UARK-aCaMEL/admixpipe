@@ -6,13 +6,13 @@ process PLOT_PAIRWISE_FST {
 
     input:
         tuple val(meta), path(snpio_report_data)
+        path(header)
 
     output:
         path("pairwise_fst_mqc.html"), emit: plot_html
         path("versions.yml"), emit: versions
 
     script:
-    def args = task.ext.args ?: ''
 
     """
     echo "🔍 Finding input files..."
@@ -23,7 +23,7 @@ process PLOT_PAIRWISE_FST {
     plot_pairwise_fst.py \\
         --fst \$fst \\
         --pvals \$pvals \\
-        --header ${baseDir}/assets/multiqc_pairwise_fst.html \\
+        --header ${header} \\
         --output pairwise_fst_mqc.html
 
     pandas_version=\$(python3 -c 'import pandas; print(pandas.__version__)')

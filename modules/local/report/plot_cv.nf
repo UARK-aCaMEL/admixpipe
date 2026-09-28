@@ -7,6 +7,7 @@ process PLOT_CV {
     input:
         tuple val(meta), path(cv_file)
         tuple val(meta2), path(bestk_file)
+        path(template)
 
     output:
         path("cvplot_mqc.html"), emit: cv_html
@@ -19,7 +20,7 @@ process PLOT_CV {
     plot_cv.py \\
         ${cv_file} \\
         --bestk \$bestk \\
-        --template ${baseDir}/assets/multiqc_cv.html
+        --template ${template}
 
     plotly_version=\$(python3 -c 'import plotly; print(plotly.__version__)')
 

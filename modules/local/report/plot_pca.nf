@@ -6,13 +6,13 @@ process PLOT_PCA {
 
     input:
         tuple val(meta), path(snpio_report_data)
+        path(header)
 
     output:
         path("snpio_pca_mqc.html"), emit: plot_html
         path("versions.yml"), emit: versions
 
     script:
-    def args = task.ext.args ?: ''
 
     """
     echo "🔍 Finding input files..."
@@ -21,7 +21,7 @@ process PLOT_PCA {
     echo "📊 Plotting..."
     plot_pca.py \\
         --input \$pca \\
-        --header ${baseDir}/assets/multiqc_pca.html \\
+        --header ${header} \\
         --output snpio_pca_mqc.html
 
     pandas_version=\$(python3 -c 'import pandas; print(pandas.__version__)')

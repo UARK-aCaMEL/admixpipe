@@ -10,6 +10,8 @@ process PLOT_ADMIXTURE_KRIGING {
     tuple val(meta3), path(pops)          // one pop/site ID per line
     tuple val(meta4), path(site_coords)   // TSV: ID,Lat,Lon
     tuple val(meta5), path(geo_data)      // optional dir with config.json
+    path(template_disc)
+    path(template_div)
 
     output:
     path("admixture_kriging_discrete.html"),           emit: html_discrete
@@ -28,8 +30,8 @@ process PLOT_ADMIXTURE_KRIGING {
         --pops         ${pops} \\
         --site_coords  ${site_coords} \\
         --out_prefix   admixture \\
-        --template_disc   ${baseDir}/assets/multiqc_kriging_discrete.html \\
-        --template_div    ${baseDir}/assets/multiqc_kriging_simpson.html \\
+        --template_disc   ${template_disc} \\
+        --template_div    ${template_div} \\
         --grid_nx 400 --grid_ny 400 \\
         --jobs ${task.cpus} \\
         ${geo_data_arg} \\

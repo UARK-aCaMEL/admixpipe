@@ -7,6 +7,7 @@ process PLOT_EVANNO {
     input:
         tuple val(meta), path(evanno_file)
         tuple val(meta2), path(bestk_file)
+        path(template)
 
     output:
         path("evanno_mqc.html"), emit: evanno_html
@@ -19,7 +20,7 @@ process PLOT_EVANNO {
     plot_evanno.py \\
         ${evanno_file} \\
         --bestk \$bestk \\
-        --template ${baseDir}/assets/multiqc_evanno.html \\
+        --template ${template} \\
         -o evanno_mqc.html
 
     plotly_version=\$(python3 -c 'import plotly; print(plotly.__version__)')

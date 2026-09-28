@@ -10,6 +10,7 @@ process PLOT_ADMIXTURE_SPATIAL {
     tuple val(meta3),  path(pops)         // one pop/site ID per line
     tuple val(meta4),  path(site_coords)  // TSV: ID,Lat,Lon
     tuple val(meta5), path(geo_data)
+    path(template)
 
     output:
     path("admixture_spatial_mqc.html"), emit: plot_html
@@ -25,7 +26,7 @@ process PLOT_ADMIXTURE_SPATIAL {
         --inds       ${inds} \\
         --pops       ${pops} \\
         --site_coords ${site_coords} \\
-        --template   ${baseDir}/assets/multiqc_admixture_spatial.html \\
+        --template   ${template} \\
         --out        admixture_spatial_mqc.html \\
         --table_out  admixture_spatial.tsv \\
         ${geo_data_arg} \\
