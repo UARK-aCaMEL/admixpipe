@@ -9,6 +9,7 @@ nextflow_pipeline {
         when {
             params {
                 outdir = "$outputDir"
+                seed   = 1
             }
         }
 
@@ -21,7 +22,7 @@ nextflow_pipeline {
                 'clumpak/clumpakOutput/*.zip',
                 'clumpak/clumpakOutput/job_*_pipeline_summary.pdf',
                 // CLUMPAK, distruct and evalAdmix only write MinorCluster/MinClust outputs if MCL finds
-                // more than one mode for a K, which depends on the randomly seeded ADMIXTURE K>=2 replicates
+                // more than one mode for a K. That depends on the ADMIXTURE K>=2 replicates, so it can change with the seed
                 'clumpak/clumpakOutput/K=*.MinorCluster*.png',
                 'clumpak/clumpakOutput/K=*/MinorCluster*',
                 'clumpak/clumpakOutput/K=*/MinorCluster*/**',
