@@ -2,7 +2,7 @@ process BESTK {
     tag "$meta.id"
     label 'process_single'
 
-    container 'docker.io/btmartin721/snpio:1.7.5'
+    container 'docker.io/btmartin721/snpio:1.7.6'
 
     input:
         tuple val(meta), path(cv_file)

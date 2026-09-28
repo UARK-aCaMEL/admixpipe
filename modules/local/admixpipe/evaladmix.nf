@@ -2,7 +2,7 @@ process EVALADMIX {
     tag "$meta.id"
     label 'process_low'
 
-    container 'docker.io/mussmann/admixpipe:3.2'
+    container 'docker.io/mussmann/admixpipe:3.2.2'
 
     input:
     tuple val(meta), path(ped)
@@ -44,7 +44,7 @@ process EVALADMIX {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        AdmixPipe: 3.2
+        AdmixPipe: 3.2.2
     END_VERSIONS
     """
 }

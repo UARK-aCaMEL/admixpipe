@@ -2,7 +2,7 @@ process DISTRUCT {
     tag "$meta.id"
     label 'process_single'
 
-    container 'docker.io/mussmann/admixpipe:3.2'
+    container 'docker.io/mussmann/admixpipe:3.2.2'
 
     input:
     tuple val(meta), path(pfiles)
@@ -51,7 +51,7 @@ process DISTRUCT {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        AdmixPipe: 3.2
+        AdmixPipe: 3.2.2
         distruct: 1.1
         ghostscript: 9.50
     END_VERSIONS

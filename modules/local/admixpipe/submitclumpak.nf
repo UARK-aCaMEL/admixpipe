@@ -2,12 +2,13 @@ process CLUMPAK {
     tag "$meta.id"
     label 'process_medium'
 
-    container 'docker.io/mussmann/admixpipe:3.2'
+    container 'docker.io/mussmann/admixpipe:3.2.2'
 
     input:
     tuple val(meta), path(results)
     tuple val(meta2), path(inds)
     tuple val(meta3), path(pops)
+    tuple val(meta4), path(admixpipe_args) // admixturePipeline.json, read by submitClumpak.py
 
     output:
     tuple val(meta), path("clumpakOutput"),   emit: output
@@ -29,7 +30,7 @@ process CLUMPAK {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        AdmixPipe: 3.2
+        AdmixPipe: 3.2.2
         CLUMPAK: 1.1
     END_VERSIONS
     """

@@ -51,7 +51,8 @@ workflow RUN_ADMIXPIPE {
     CLUMPAK(
         ADMIXTUREPIPELINE.out.results,
         ADMIXTUREPIPELINE.out.inds,
-        ADMIXTUREPIPELINE.out.pops
+        ADMIXTUREPIPELINE.out.pops,
+        ADMIXTUREPIPELINE.out.args_json
     )
     ch_versions = ch_versions.mix( CLUMPAK.out.versions )
 
