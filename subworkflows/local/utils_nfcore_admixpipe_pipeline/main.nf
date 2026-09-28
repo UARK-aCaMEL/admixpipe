@@ -10,13 +10,11 @@
 
 include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
 include { paramsSummaryMap          } from 'plugin/nf-schema'
-include { paramsHelp                } from 'plugin/nf-schema'
 include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
 include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
-include { TABIX_TABIX               } from '../../../modules/nf-core/tabix/tabix/main'
-include { TABIX_BGZIP               } from '../../../modules/nf-core/tabix/bgzip/main'
+include { HTSLIB_BGZIPTABIX as BGZIP_INDEX_VCF } from '../../../modules/nf-core/htslib/bgziptabix/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +27,7 @@ workflow PIPELINE_INITIALISATION {
     take:
     version           // boolean: Display version and exit
     validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
-    monochrome_logs   // boolean: Do not use coloured log outputs
+    _monochrome_logs  // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input VCF or VCF.gz file
@@ -104,28 +102,30 @@ If you use aCaMEL/admixpipe for your analysis please cite:
     // Create channel from input file provided through params.input
     //
 
-    Channel
+    channel
         .fromPath(input)
         .map { file ->
             def meta = [id: file.simpleName]
             return [meta, file]
         }
-        .branch {
-            vcf: it[1].name.endsWith('.vcf')
-            vcfgz: it[1].name.endsWith('.vcf.gz')
+        .branch { item ->
+            vcf: item[1].name.endsWith('.vcf')
+            vcfgz: item[1].name.endsWith('.vcf.gz')
         }
         .set { ch_input }
 
-    // Process VCF inputs
-    TABIX_BGZIP ( ch_input.vcf )
-    ch_tabix_vcf_input = ch_input.vcfgz
-        | mix (TABIX_BGZIP.out.output )
-    TABIX_TABIX( ch_tabix_vcf_input )
+    // Bgzip uncompressed VCFs (bgzipped inputs are linked as they are) and index them
+    BGZIP_INDEX_VCF(
+        ch_input.vcf.mix(ch_input.vcfgz).map { meta, file -> [ meta, file, [], [] ] },
+        'compress',
+        true,
+        'vcf'
+    )
 
     //
     // Create channel for the popmap
     //
-    Channel
+    channel
         .fromPath(popmap)
         .map { file ->
             def meta = [id: file.simpleName]
@@ -136,9 +136,9 @@ If you use aCaMEL/admixpipe for your analysis please cite:
     //
     // Channel for geo_data_config (optional)
     //
-    if ( params.geo_data_config ) {
-        Channel
-            .fromPath( params.geo_data_config )
+    if ( geo_data_config ) {
+        channel
+            .fromPath( geo_data_config )
             .map { file ->
                 def meta = [ id: file.simpleName ]
                 return [ meta, file ]
@@ -146,7 +146,7 @@ If you use aCaMEL/admixpipe for your analysis please cite:
             .set { ch_geo_data_config }
     }
     else {
-        Channel
+        channel
             .empty()
             .set { ch_geo_data_config }
     }
@@ -155,9 +155,9 @@ If you use aCaMEL/admixpipe for your analysis please cite:
     //
     // Channel for a *pre‑staged* geodata directory (optional)
     //
-    if ( params.geo_data_dir ) {
-        Channel
-            .fromPath( params.geo_data_dir )      // accepts dir or wildcard
+    if ( geo_data_dir ) {
+        channel
+            .fromPath( geo_data_dir )      // accepts dir or wildcard
             .map { dir ->
                 def meta = [ id: file(dir).getBaseName() ]
                 return [ meta, dir ]
@@ -165,15 +165,15 @@ If you use aCaMEL/admixpipe for your analysis please cite:
             .set { ch_geo_data_dir }
     }
     else {
-        Channel.empty().set { ch_geo_data_dir }
+        channel.empty().set { ch_geo_data_dir }
     }
 
     //
     // Channel for site_coords (optional)
     //
-    if ( params.site_coords ) {
-        Channel
-            .fromPath( params.site_coords )
+    if ( site_coords ) {
+        channel
+            .fromPath( site_coords )
             .map { file ->
                 def meta = [ id: file.simpleName ]
                 return [ meta, file ]
@@ -181,18 +181,14 @@ If you use aCaMEL/admixpipe for your analysis please cite:
             .set { ch_site_coords }
     }
     else {
-        Channel
+        channel
             .empty()
             .set { ch_site_coords }
     }
 
-    // Collect versions
-    ch_versions = ch_versions.mix(TABIX_BGZIP.out.versions)
-    ch_versions = ch_versions.mix(TABIX_TABIX.out.versions)
-
     emit:
-    vcf       = ch_tabix_vcf_input
-    tbi       = TABIX_TABIX.out.tbi
+    vcf       = BGZIP_INDEX_VCF.out.output
+    tbi       = BGZIP_INDEX_VCF.out.index
     popmap    = ch_popmap
     site_coords = ch_site_coords
     geo_data    = ch_geo_data_config
@@ -263,7 +259,7 @@ def validateInputParameters() {
     if (!(params.maxk instanceof Integer)) {
         try {
             params.maxk = params.maxk as Integer
-        } catch (Exception e) {
+        } catch (Exception _e) {
             error("Invalid value for --maxk: '${params.maxk}'. It must be an integer.")
         }
     }
@@ -279,7 +275,7 @@ def validateInputParameters() {
         if (!(params[p] instanceof Number)) {
             try {
                 params[p] = params[p] as Double
-            } catch (Exception e) {
+            } catch (Exception _e) {
                 error("Invalid value for --${p}: '${params[p]}'. It must be numeric.")
             }
         }
@@ -295,7 +291,7 @@ def validateInputParameters() {
     if (!(params.thin_dist instanceof Integer)) {
         try {
             params.thin_dist = params.thin_dist as Integer
-        } catch (Exception e) {
+        } catch (Exception _e) {
             error("Invalid value for --thin_dist: '${params.thin_dist}'. It must be an integer.")
         }
     }
@@ -306,7 +302,7 @@ def validateInputParameters() {
     if (!(params.num_cv instanceof Integer)) {
         try {
             params.num_cv = params.num_cv as Integer
-        } catch (Exception e) {
+        } catch (Exception _e) {
             error("Invalid value for --num_cv: '${params.num_cv}'. It must be an integer.")
         }
     }
@@ -317,7 +313,7 @@ def validateInputParameters() {
     if (!(params.num_reps instanceof Integer)) {
         try {
             params.num_reps = params.num_reps as Integer
-        } catch (Exception e) {
+        } catch (Exception _e) {
             error("Invalid value for --num_reps: '${params.num_reps}'. It must be an integer.")
         }
     }
@@ -434,10 +430,10 @@ def fullParamsSummaryMultiqc(schema_filename) {
     }
 
     // Anything passed that the schema does not know about (e.g. from -params-file)
-    def extra = params.keySet().findAll { !(it in seen) && !it.contains('-') }.sort()
+    def extra = params.keySet().findAll { key -> !(key in seen) && !key.contains('-') }.sort()
     if (extra) {
         lines << '<p style="font-size:110%"><b>Other parameters (not in schema)</b></p>'
-        lines.addAll(summaryTable(['Parameter', 'Value'], extra.collect { [it, summaryFormat(params[it])] }))
+        lines.addAll(summaryTable(['Parameter', 'Value'], extra.collect { key -> [key, summaryFormat(params[key])] }))
     }
 
     String yaml_file_text  = "id: '${workflow.manifest.name.replace('/','-')}-summary'\n"
@@ -446,7 +442,7 @@ def fullParamsSummaryMultiqc(schema_filename) {
     yaml_file_text        += "section_href: '${workflow.manifest.homePage}'\n"
     yaml_file_text        += "plot_type: 'html'\n"
     yaml_file_text        += "data: |\n"
-    yaml_file_text        += lines.collect { "    ${it}" }.join('\n') + '\n'
+    yaml_file_text        += lines.collect { line -> "    ${line}" }.join('\n') + '\n'
 
     return yaml_file_text
 }

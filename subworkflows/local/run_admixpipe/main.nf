@@ -2,8 +2,7 @@
 // Run Steve Mussmann's Admixture Pipeline (AdmixPipe 3.0)
 //
 
-include { TABIX_BGZIP } from '../../../modules/nf-core/tabix/bgzip/main'
-include { TABIX_TABIX } from '../../../modules/nf-core/tabix/tabix/main'
+include { HTSLIB_BGZIPTABIX as DECOMPRESS_VCF } from '../../../modules/nf-core/htslib/bgziptabix/main'
 include { ADMIXTUREPIPELINE } from '../../../modules/local/admixpipe/admixturepipeline.nf'
 include { CLUMPAK } from '../../../modules/local/admixpipe/submitclumpak.nf'
 include { CVSUM } from '../../../modules/local/admixpipe/cvsum.nf'
@@ -18,22 +17,26 @@ workflow RUN_ADMIXPIPE {
     ch_popmap   // [ val(meta), popmap file ]
 
     main:
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     // Branch input VCF by extension
     vcf
-    | branch {
-        vcfgz: it[1].name.endsWith('.vcf.gz')
-        vcf:   it[1].name.endsWith('.vcf')
+    | branch { item ->
+        vcfgz: item[1].name.endsWith('.vcf.gz')
+        vcf:   item[1].name.endsWith('.vcf')
     }
     | set { ch_vcf_branch }
 
     // If input was vcf.gz, decompress
-    TABIX_BGZIP( ch_vcf_branch.vcfgz )
-    ch_versions = ch_versions.mix( TABIX_BGZIP.out.versions )
+    DECOMPRESS_VCF(
+        ch_vcf_branch.vcfgz.map { meta, file -> [ meta, file, [], [] ] },
+        'decompress',
+        false,
+        'vcf'
+    )
 
-    // Combine uncompressed .vcf with bgzipped .vcf
-    TABIX_BGZIP.out.output
+    // Combine uncompressed .vcf with decompressed .vcf
+    DECOMPRESS_VCF.out.output
         | mix( ch_vcf_branch.vcf )
         | set { ch_vcf }
 
@@ -61,6 +64,7 @@ workflow RUN_ADMIXPIPE {
         ADMIXTUREPIPELINE.out.logs,
         CLUMPAK.out.output
     )
+    ch_versions = ch_versions.mix( DISTRUCT.out.versions )
 
     // Compute best K from crossval
     CVSUM(
