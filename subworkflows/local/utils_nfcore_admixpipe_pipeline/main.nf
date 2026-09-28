@@ -99,6 +99,12 @@ If you use aCaMEL/admixpipe for your analysis please cite:
     validateInputParameters()
 
     //
+    // Random seed for ADMIXTURE replicates and SNPio
+    //
+    def random_seed = randomSeed()
+    log.info(params.seed != null ? "Random seed: ${random_seed}" : "Random seed: ${random_seed} (not set; rerun with --seed ${random_seed} to reproduce this run)")
+
+    //
     // Create channel from input file provided through params.input
     //
 
@@ -193,6 +199,7 @@ If you use aCaMEL/admixpipe for your analysis please cite:
     site_coords = ch_site_coords
     geo_data    = ch_geo_data_config
     geo_data_dir = ch_geo_data_dir
+    seed      = channel.value(random_seed)
     versions  = ch_versions
 }
 
@@ -247,6 +254,14 @@ workflow PIPELINE_COMPLETION {
     FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+//
+// Random seed: --seed if given, otherwise derived from the session ID, which is
+// new for every run but kept by -resume (so cached tasks stay valid)
+//
+def randomSeed() {
+    return params.seed != null ? params.seed as long : Math.floorMod(workflow.sessionId.hashCode() as long, 2147483646L) + 1
+}
 
 //
 // Check and validate pipeline parameters
@@ -396,6 +411,7 @@ def fullParamsSummaryMultiqc(schema_filename) {
         'Commit ID'        : workflow.commitId,
         'Run name'         : workflow.runName,
         'Session ID'       : workflow.sessionId,
+        'Random seed'      : params.seed != null ? randomSeed() : "${randomSeed()} (from the session ID; rerun with --seed ${randomSeed()} to reproduce)",
         'Started'          : workflow.start,
         'Nextflow version' : workflow.nextflow.version,
         'Profile'          : workflow.profile,
@@ -454,7 +470,7 @@ def toolCitationText() {
     def citation_text = [
             "Input genotypes were compressed and indexed with tabix (Li 2011), and sample lists were extracted with bcftools (Danecek et al. 2021).",
             "SNPs and individuals were filtered, and missingness, F<sub>ST</sub> and PCA summaries were computed, with SNPio (Martin et al. 2026).",
-            "Ancestry proportions were estimated with ADMIXTURE (Alexander et al. 2009) via AdmixPipe (Mussmann et al. 2020, 2023), using VCFtools (Danecek et al. 2011) and PLINK (Chang et al. 2015) for file conversion.",
+            "Ancestry proportions were estimated with ADMIXTURE (Alexander et al. 2009) via AdmixPipe (Mussmann et al. 2020, 2023), using VCFtools (Danecek et al. 2011) and PLINK (Chang et al. 2015) for file conversion; ADMIXTURE runs were seeded reproducibly from random seed ${randomSeed()}.",
             "Replicate runs were aligned with CLUMPAK (Kopelman et al. 2015) and CLUMPP (Jakobsson & Rosenberg 2007), and plotted with distruct (Rosenberg 2004).",
             "Model fit was assessed with evalAdmix (Garcia-Erill & Albrechtsen 2020), and the best K was chosen using ${params.bestk_method == 'evanno' ? 'the Evanno delta K method (Evanno et al. 2005)' : params.bestk_method == 'cv' ? 'ADMIXTURE cross-validation error' : 'the ' + params.bestk_method + ' criterion (Evanno et al. 2005)'}.",
             "Results were summarised with MultiQC (Ewels et al. 2016)."

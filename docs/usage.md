@@ -139,6 +139,10 @@ The version number, the full command line and the value of every parameter are r
 > [!TIP]
 > If you wish to share such a parameter file (such as upload as supplementary material for academic publications), make sure to NOT include cluster specific paths to files, nor institutional specific profiles.
 
+ADMIXTURE replicates are seeded from `--seed`: every K and replicate gets its own seed drawn from it, so a rerun with the same seed, inputs and parameters repeats the same replicates. SNPio's F<sub>ST</sub> permutations and PCA use the same seed. If `--seed` is not set, a seed is derived from the run's session ID. It differs between runs, is kept when you `-resume`, and is printed at startup and recorded under _Run information_ in the report. Rerun with `--seed <value>` to reproduce that run.
+
+Multithreaded ADMIXTURE is not bit-for-bit deterministic. With more than one CPU for `ADMIXTUREPIPELINE`, Q and P values can differ around the sixth decimal place and a replicate's cross-validation error by up to about 0.0002, so the best K by cross-validation can change when two values of K are within about 0.0002 of each other. For exact reproduction, give `ADMIXTUREPIPELINE` one CPU (see [Resource requests](#resource-requests)).
+
 ## Core Nextflow arguments
 
 > [!NOTE]

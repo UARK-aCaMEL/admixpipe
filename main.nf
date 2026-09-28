@@ -35,6 +35,7 @@ workflow ACAMEL_ADMIXPIPE {
     site_coords
     geo_data
     geo_data_dir
+    seed    // value: random seed
 
     main:
 
@@ -48,6 +49,7 @@ workflow ACAMEL_ADMIXPIPE {
         site_coords,
         geo_data,
         geo_data_dir,
+        seed,
         params.multiqc_config,
         params.multiqc_logo,
         params.multiqc_methods_description,
@@ -94,6 +96,7 @@ workflow {
         PIPELINE_INITIALISATION.out.site_coords,
         PIPELINE_INITIALISATION.out.geo_data,
         PIPELINE_INITIALISATION.out.geo_data_dir,
+        PIPELINE_INITIALISATION.out.seed,
     )
     //
     // SUBWORKFLOW: Run completion tasks

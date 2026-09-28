@@ -32,6 +32,9 @@ process DISTRUCT {
         export PATH="/app/bin:/app/scripts/python/clumpak:/app/scripts/python/admixturePipeline:\$PATH"
     fi
 
+    # CLUMPAK and distruct are Perl; fix hash order so output order is reproducible
+    export PERL_HASH_SEED=0 PERL_PERTURB_KEYS=0
+
     # distructRerun.py writes best_results/ into the CLUMPAK directory it is given.
     # Work on a copy: writing into the staged input (CLUMPAK's work dir) changes
     # it, so -resume would re-run this task and everything after it.

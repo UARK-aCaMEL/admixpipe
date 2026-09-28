@@ -28,6 +28,7 @@ workflow ADMIXPIPE {
     ch_site_coords
     ch_geo_data
     ch_geo_data_dir
+    ch_seed                      // value: random seed
     multiqc_config               // string: path to a custom MultiQC config (optional)
     multiqc_logo                 // string: path to a custom MultiQC logo (optional)
     multiqc_methods_description  // string: path to a custom methods description (optional)
@@ -47,7 +48,8 @@ workflow ADMIXPIPE {
     SNPIO_FILTER(
         ch_vcf,
         ch_tbi,
-        ch_popmap
+        ch_popmap,
+        ch_seed
     )
     ch_versions = ch_versions.mix(SNPIO_FILTER.out.versions)
     ch_filtered_vcf = SNPIO_FILTER.out.filtered_vcf.map { meta, file -> tuple(meta + [id: "${meta.id}_filtered"], file) }
@@ -60,7 +62,8 @@ workflow ADMIXPIPE {
     //
     RUN_ADMIXPIPE(
         ch_filtered_vcf,
-        ch_popmap
+        ch_popmap,
+        ch_seed
     )
     ch_versions = ch_versions.mix(RUN_ADMIXPIPE.out.versions)
 

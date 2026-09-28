@@ -8,6 +8,7 @@ process SNPIO_FILTER {
     tuple val(meta), path(vcf)
     tuple val(meta2), path(tbi)
     tuple val(meta3), path(popmap)
+    val(seed)
 
     output:
     tuple val(meta), path("${meta.id}.filter.vcf.gz"), emit: filtered_vcf
@@ -30,6 +31,7 @@ process SNPIO_FILTER {
         --pop_cov ${params.pop_cov} \\
         --flank_dist ${params.thin_dist} \\
         --jobs ${task.cpus} \\
+        --seed ${seed} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml

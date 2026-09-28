@@ -63,6 +63,12 @@ def main():
         help="Threads",
     )
     parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Random seed for the Fst permutations and the PCA",
+    )
+    parser.add_argument(
         "--save_plots",
         action="store_true",
         help="Also write SNPio's static plot images (not used by the report)",
@@ -113,8 +119,9 @@ def main():
         n_reps=args.permutations,
         method="permutation",
         n_jobs=args.jobs,
+        seed=args.seed,
     )
-    pgs.pca()
+    pgs.pca(seed=args.seed)
 
     # Generate report
     SNPioMultiQC.build(

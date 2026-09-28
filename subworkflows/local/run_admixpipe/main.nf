@@ -15,6 +15,7 @@ workflow RUN_ADMIXPIPE {
     take:
     vcf         // [ val(meta), *.vcf or *.vcf.gz ]
     ch_popmap   // [ val(meta), popmap file ]
+    seed        // value: random seed for ADMIXTURE replicates
 
     main:
     ch_versions = channel.empty()
@@ -43,7 +44,8 @@ workflow RUN_ADMIXPIPE {
     // Pass to ADMIXTURE pipeline
     ADMIXTUREPIPELINE(
         ch_vcf,
-        ch_popmap
+        ch_popmap,
+        seed
     )
     ch_versions = ch_versions.mix( ADMIXTUREPIPELINE.out.versions )
 

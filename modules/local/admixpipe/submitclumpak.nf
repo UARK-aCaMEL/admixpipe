@@ -22,6 +22,9 @@ process CLUMPAK {
         export PATH="/app/bin:/app/scripts/python/clumpak:/app/scripts/python/admixturePipeline:\$PATH"
     fi
 
+    # CLUMPAK and distruct are Perl; fix hash order so output order is reproducible
+    export PERL_HASH_SEED=0 PERL_PERTURB_KEYS=0
+
     submitClumpak.py \\
         -r ${results} \\
         -p ${meta.id} \\

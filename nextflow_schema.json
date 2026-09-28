@@ -140,6 +140,14 @@
                     "description": "Number of independent ADMIXTURE replicates per K.",
                     "fa_icon": "fas fa-redo"
                 },
+                "seed": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 4294967295,
+                    "description": "Random seed for ADMIXTURE replicates and SNPio (F<sub>ST</sub> permutations, PCA).",
+                    "help_text": "Each ADMIXTURE run (every K and replicate) gets its own seed, drawn from this one, so a rerun repeats the same replicates. If not set, a seed is derived from the run's session ID: it differs between runs, is kept by `-resume`, is printed at startup, and is recorded in the report. Rerun with `--seed <value>` to reproduce a run. Multithreaded ADMIXTURE is not bit-for-bit deterministic; give ADMIXTUREPIPELINE one CPU for exact reproduction.",
+                    "fa_icon": "fas fa-dice"
+                },
                 "num_cv": {
                     "type": "integer",
                     "default": 10,
