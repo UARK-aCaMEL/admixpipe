@@ -17,3 +17,18 @@ Initial release of aCaMEL/admixpipe.
 - Optional interactive ancestry maps (`--site_coords`) with user-supplied vector layers (`--geo_data_config`, `--geo_data_dir`).
 - Full run provenance in the report: command line, run metadata, and every parameter value with its default.
 - Draft methods text with tool citations in the report.
+
+### `Fixed`
+
+- `SNPIO_FILTER` no longer stalls under amd64 emulation on Apple silicon: SNPio's static plot images, which the report does not use, are skipped (`--save_plots` in `bin/snpio_filter.py` restores them). It also runs as the host user under the `docker` profile, which cannot use the SNPio image's private home directory.
+- Report HTML templates and the logo are staged as process inputs instead of being read from `baseDir`, so report steps also work on executors without access to the pipeline directory.
+- Software versions now include distruct, the post-filtering `bcftools query`, Evanno and map-layer staging.
+- The aCaMEL logo is added to the report header again; the header pattern no longer matched MultiQC 1.35.
+
+### `Dependencies`
+
+| Dependency | Old version | New version |
+| ---------- | ----------- | ----------- |
+| SNPio      | 1.6.10      | 1.7.5       |
+
+The deprecated nf-core `tabix/bgzip` and `tabix/tabix` modules are replaced by `htslib/bgziptabix`.

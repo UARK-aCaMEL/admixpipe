@@ -1,4 +1,6 @@
 lint:
+  # No pipeline-specific config exists in nf-core/configs for this (non-nf-core) pipeline
+  included_configs: false
   files_exist:
     - CODE_OF_CONDUCT.md
     - conf/igenomes.config
