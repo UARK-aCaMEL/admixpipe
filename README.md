@@ -33,7 +33,7 @@
 
 You need [Nextflow](https://www.nextflow.io/docs/latest/install.html) (≥ 25.10.4) and a container engine: Docker, Singularity/Apptainer or Podman. Conda is not supported.
 
-To check that everything works, and to see what the outputs look like, run the pipeline on the bundled test dataset. It contains 185 samples from 14 sampling sites, with 9,345 SNPs, site coordinates and a river-network map layer:
+To check that everything works, and to see what the outputs look like, run the pipeline on the bundled test dataset. It comes from a study of the Neosho Madtom (_Noturus placidus_) by [Zbinden et al. (2025)](https://doi.org/10.1016/j.gecco.2025.e03783), and contains 185 samples from 14 sampling sites, with 9,345 SNPs, site coordinates and a river-network map layer:
 
 ```bash
 nextflow run UARK-aCaMEL/admixpipe -profile test,docker --outdir test_results
@@ -103,6 +103,7 @@ Please also cite the tools used by the pipeline:
 
 - **ADMIXTURE**: Alexander DH, Novembre J, Lange K (2009). Fast model-based estimation of ancestry in unrelated individuals. _Genome Research_ 19:1655–1664. doi: [10.1101/gr.094052.109](https://doi.org/10.1101/gr.094052.109)
 - **AdmixPipe**: Mussmann SM, Douglas MR, Chafin TK, Douglas ME (2020). AdmixPipe: population analyses in Admixture for non-model organisms. _BMC Bioinformatics_ 21:337. doi: [10.1186/s12859-020-03701-4](https://doi.org/10.1186/s12859-020-03701-4)
+- **AdmixPipe v3**: Mussmann SM, Douglas MR, Chafin TK, Douglas ME (2023). AdmixPipe v3: facilitating population structure delimitation from SNP data. _Bioinformatics Advances_ 3(1):vbad168. doi: [10.1093/bioadv/vbad168](https://doi.org/10.1093/bioadv/vbad168)
 - **CLUMPAK**: Kopelman NM, Mayzel J, Jakobsson M, Rosenberg NA, Mayrose I (2015). Clumpak: a program for identifying clustering modes and packaging population structure inferences across K. _Molecular Ecology Resources_ 15:1179–1191. doi: [10.1111/1755-0998.12387](https://doi.org/10.1111/1755-0998.12387)
 - **distruct**: Rosenberg NA (2004). distruct: a program for the graphical display of population structure. _Molecular Ecology Notes_ 4:137–138. doi: [10.1046/j.1471-8286.2003.00566.x](https://doi.org/10.1046/j.1471-8286.2003.00566.x)
 - **evalAdmix**: Garcia-Erill G, Albrechtsen A (2020). Evaluation of model fit of inferred admixture proportions. _Molecular Ecology Resources_ 20:936–949. doi: [10.1111/1755-0998.13171](https://doi.org/10.1111/1755-0998.13171)
