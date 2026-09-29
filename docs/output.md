@@ -126,6 +126,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 Maps are only included when `--site_coords` is given. Map backgrounds are loaded from the internet when the report is opened.
 
+An [example report](https://raw.githack.com/UARK-aCaMEL/admixpipe/master/assets/example_report.html) from the test dataset (`-profile test`) shows every section. It is also at [`assets/example_report.html`](../assets/example_report.html) ([download](https://github.com/UARK-aCaMEL/admixpipe/raw/master/assets/example_report.html), 57 MB).
+
 ### Pipeline information
 
 <details markdown="1">

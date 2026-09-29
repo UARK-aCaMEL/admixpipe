@@ -80,7 +80,7 @@ For more details and further functionality, please refer to the [usage documenta
 
 ## Pipeline output
 
-The main output is an interactive report, `<OUTDIR>/report/multiqc_report.html`. For more details about the output files and reports, please refer to the [output documentation](docs/output.md).
+The main output is an interactive report, `<OUTDIR>/report/multiqc_report.html`. To see what it looks like, open the [example report](https://raw.githack.com/UARK-aCaMEL/admixpipe/master/assets/example_report.html) from the test dataset ([download](https://github.com/UARK-aCaMEL/admixpipe/raw/master/assets/example_report.html), 57 MB). For more details about the output files and reports, please refer to the [output documentation](docs/output.md).
 
 ## Credits
 
