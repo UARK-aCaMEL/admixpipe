@@ -328,35 +328,23 @@ def build_plotly_figure(
     pop = res.pop_ord
     N = z.shape[0]
 
+    # Sample IDs are the .fam FID column (IID holds the population)
     fid_ord = np.asarray(fid, dtype=str)[res.ord0] if fid is not None else None
-    iid_ord = np.asarray(iid, dtype=str)[res.ord0] if iid is not None else None
 
+    # One hover label per cell, so keep them short: an N x N heatmap has N^2
+    # labels, and MultiQC stores the report's custom HTML twice.
     hover = np.empty((N, N), dtype=object)
     for i in range(N):
         for j in range(N):
             if i == j:
-                hover[i, j] = "Diagonal"
-                continue
-            if j > i:
-                val = z[i, j]
-                hover[i, j] = (
-                    f"Type: pop-mean (upper triangle)<br>"
-                    f"Row pop: {pop[i]}<br>Col pop: {pop[j]}<br>"
-                    f"Value: {val:.6g}"
-                )
+                hover[i, j] = ""
+            elif j > i:
+                hover[i, j] = f"{pop[i]} × {pop[j]} (population mean)<br>r = {z[i, j]:.4g}"
             else:
-                val = z_raw[i, j]
-                extra = ""
-                if fid_ord is not None and iid_ord is not None:
-                    extra = (
-                        f"<br>Row: {fid_ord[i]}/{iid_ord[i]}"
-                        f"<br>Col: {fid_ord[j]}/{iid_ord[j]}"
-                    )
-                hover[i, j] = (
-                    f"Type: individual (lower triangle)<br>"
-                    f"Row pop: {pop[i]}<br>Col pop: {pop[j]}<br>"
-                    f"Value: {val:.6g}{extra}"
-                )
+                pair = f"{pop[i]} × {pop[j]}"
+                if fid_ord is not None:
+                    pair = f"{fid_ord[i]} × {fid_ord[j]} ({pair})"
+                hover[i, j] = f"{pair}<br>r = {z_raw[i, j]:.4g}"
 
     # Mask diagonal for heatmap; overlay as black points
     z_heat = z.copy()

@@ -25,6 +25,7 @@ Initial release of aCaMEL/admixpipe.
 - Report HTML templates and the logo are staged as process inputs instead of being read from `baseDir`, so report steps also work on executors without access to the pipeline directory.
 - Software versions now include distruct, the post-filtering `bcftools query`, Evanno and map-layer staging.
 - The aCaMEL logo is added to the report header again; the header pattern no longer matched MultiQC 1.35.
+- Reports are about half the size (109 → 57 MB on the test data): the evalAdmix heatmaps' per-cell hover labels are shorter.
 
 ### `Dependencies`
 
