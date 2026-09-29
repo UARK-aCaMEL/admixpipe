@@ -7,9 +7,11 @@ clumpak/clumpakOutput/K=*/**/{ClumppCommands.sh,ClumppIndFile.misc}
 clumpak/clumpakOutput/K=*/**/distructOutput.{pdf,ps,sh}
 clumpak/clumpakOutput/K=*.MinorCluster*.png
 clumpak/clumpakOutput/K=*/MinorCluster*/**
+clumpak/clumpakOutput/**/{FilesToIndex,clusterFiles,ClumppIndFile,ClumppPairMatrix,clumppPairMatrixChoped}
 distruct/*.pdf
 distruct/*.MinorCluster*
 distruct/qfilePaths.json
+distruct/{MajorClusterRuns.txt,cvRuns.json,cv_file.MajClust.txt,loglikelihood_file.MajClust.txt}
 distruct/clumpakOutput/best_results/*.MinorCluster*
 evaladmix/*MinClust*
 pipeline_info/**
