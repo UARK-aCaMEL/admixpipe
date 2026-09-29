@@ -31,7 +31,7 @@
 
 ## Getting started
 
-You need [Nextflow](https://www.nextflow.io/docs/latest/install.html) (≥ 25.04.0) and a container engine: Docker, Singularity/Apptainer or Podman. Conda is not supported.
+You need [Nextflow](https://www.nextflow.io/docs/latest/install.html) (≥ 25.10.4) and a container engine: Docker, Singularity/Apptainer or Podman. Conda is not supported.
 
 To check that everything works, and to see what the outputs look like, run the pipeline on the bundled test dataset. It contains 185 samples from 14 sampling sites, with 9,345 SNPs, site coordinates and a river-network map layer:
 

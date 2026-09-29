@@ -21,15 +21,21 @@
         {
             "@id": "./",
             "@type": "Dataset",
-            "creativeWorkStatus": "InProgress",
-            "datePublished": "2026-09-26T19:16:29+00:00",
-            "description": "<h1>\n  <picture>\n    <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/images/acamel_admixpipe_logo_dark.png\">\n    <img alt=\"aCaMEL/admixpipe\" src=\"docs/images/acamel_admixpipe_logo_light.png\" width=\"300\">\n  </picture>\n</h1>\n\n[![GitHub Actions CI Status](https://github.com/UARK-aCaMEL/admixpipe/actions/workflows/nf-test.yml/badge.svg)](https://github.com/UARK-aCaMEL/admixpipe/actions/workflows/nf-test.yml)\n[![GitHub Actions Linting Status](https://github.com/UARK-aCaMEL/admixpipe/actions/workflows/linting.yml/badge.svg)](https://github.com/UARK-aCaMEL/admixpipe/actions/workflows/linting.yml)\n[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)\n\n[![Nextflow](https://img.shields.io/badge/version-%E2%89%A525.10.4-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)\n[![nf-core template version](https://img.shields.io/badge/nf--core_template-4.1.0-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/4.1.0)\n[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)\n[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)\n[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/UARK-aCaMEL/admixpipe)\n\n## Introduction\n\n**aCaMEL/admixpipe** is a bioinformatics pipeline that infers population structure from SNP data. It takes a multi-sample VCF and a population map, and runs replicate [ADMIXTURE](https://dalexander.github.io/admixture/) analyses across a range of K using [AdmixPipe](https://github.com/stevemussmann/admixturePipeline). Replicates are aligned, a best K is chosen and model fit is assessed. All results are collected into one interactive report, which also records the full command and every parameter used. If sampling-site coordinates are given, the report includes ancestry maps.\n\n![aCaMEL/admixpipe workflow](docs/images/acamel_admixpipe_metro_map.png)\n\n1. Filter SNPs and samples, and summarise missing data, F<sub>ST</sub> and PCA ([`SNPio`](https://github.com/btmartin721/SNPio))\n2. Run ADMIXTURE for K = 1 to `--maxk`, with replicates and cross-validation ([`AdmixPipe`](https://github.com/stevemussmann/admixturePipeline), [`ADMIXTURE`](https://dalexander.github.io/admixture/), [`PLINK`](https://www.cog-genomics.org/plink/), [`VCFtools`](https://vcftools.github.io/))\n3. Align replicates and find clustering modes ([`CLUMPAK`](https://clumpak.tau.ac.il/), [`CLUMPP`](https://rosenberglab.stanford.edu/clumpp.html), [`distruct`](https://rosenberglab.stanford.edu/distruct.html))\n4. Choose the best K by cross-validation error, Evanno \u0394K or log-likelihood ([`--bestk_method`](docs/usage.md#choosing-the-best-k))\n5. Assess model fit ([`evalAdmix`](https://github.com/GenisGE/evalAdmix))\n6. Map ancestry proportions per site (optional)\n7. Build an interactive report ([`MultiQC`](http://multiqc.info/))\n\n## Getting started\n\nYou need [Nextflow](https://www.nextflow.io/docs/latest/install.html) (\u2265 25.04.0) and a container engine: Docker, Singularity/Apptainer or Podman. Conda is not supported.\n\nTo check that everything works, and to see what the outputs look like, run the pipeline on the bundled test dataset. It contains 185 samples from 14 sampling sites, with 9,345 SNPs, site coordinates and a river-network map layer:\n\n```bash\nnextflow run UARK-aCaMEL/admixpipe -profile test,docker --outdir test_results\n```\n\nUse `-profile test,singularity` on HPC systems, or add `emulate_amd64` on Apple Silicon (`-profile test,docker,emulate_amd64`). When the run finishes, open `test_results/report/multiqc_report.html` in a web browser.\n\n## Usage\n\nFirst, prepare a population map: a tab-delimited file with no header, giving each sample (as named in the VCF) and its population.\n\n`popmap.tsv`:\n\n```text\n86NCCFE01\tNCCFE\n86NCCFE02\tNCCFE\n86NCCOT01\tNCCOT\n```\n\nNow, you can run the pipeline using:\n\n```bash\nnextflow run UARK-aCaMEL/admixpipe \\\n   -profile <docker/singularity/.../institute> \\\n   --input genotypes.vcf.gz \\\n   --popmap popmap.tsv \\\n   --outdir <OUTDIR>\n```\n\n> [!WARNING]\n> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/running/run-pipelines#using-parameter-files).\n\nFor more details and further functionality, please refer to the [usage documentation](docs/usage.md) and the [parameter documentation](nextflow_schema.json) (or run with `--help`).\n\n## Pipeline output\n\nThe main output is an interactive report, `<OUTDIR>/report/multiqc_report.html`. For more details about the output files and reports, please refer to the [output documentation](docs/output.md).\n\n## Credits\n\naCaMEL/admixpipe was originally written by [Tyler K. Chafin](https://github.com/tkchafin).\n\nWe thank the following people for their assistance in the development of this pipeline:\n\n- [Steven M. Mussmann](https://github.com/stevemussmann), author of AdmixPipe\n- [Bradley T. Martin](https://github.com/btmartin721), author of SNPio\n\n## Contributions and Support\n\nIf you would like to contribute to this pipeline, please see the [contributing guidelines](docs/CONTRIBUTING.md). Bugs and questions can be reported on the [issue tracker](https://github.com/UARK-aCaMEL/admixpipe/issues).\n\n## Citations\n\nIf you use aCaMEL/admixpipe for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXXX](https://doi.org/10.5281/zenodo.XXXXXXX)\n\nPlease also cite the tools used by the pipeline:\n\n- **ADMIXTURE**: Alexander DH, Novembre J, Lange K (2009). Fast model-based estimation of ancestry in unrelated individuals. _Genome Research_ 19:1655\u20131664. doi: [10.1101/gr.094052.109](https://doi.org/10.1101/gr.094052.109)\n- **AdmixPipe**: Mussmann SM, Douglas MR, Chafin TK, Douglas ME (2020). AdmixPipe: population analyses in Admixture for non-model organisms. _BMC Bioinformatics_ 21:337. doi: [10.1186/s12859-020-03701-4](https://doi.org/10.1186/s12859-020-03701-4)\n- **CLUMPAK**: Kopelman NM, Mayzel J, Jakobsson M, Rosenberg NA, Mayrose I (2015). Clumpak: a program for identifying clustering modes and packaging population structure inferences across K. _Molecular Ecology Resources_ 15:1179\u20131191. doi: [10.1111/1755-0998.12387](https://doi.org/10.1111/1755-0998.12387)\n- **distruct**: Rosenberg NA (2004). distruct: a program for the graphical display of population structure. _Molecular Ecology Notes_ 4:137\u2013138. doi: [10.1046/j.1471-8286.2003.00566.x](https://doi.org/10.1046/j.1471-8286.2003.00566.x)\n- **evalAdmix**: Garcia-Erill G, Albrechtsen A (2020). Evaluation of model fit of inferred admixture proportions. _Molecular Ecology Resources_ 20:936\u2013949. doi: [10.1111/1755-0998.13171](https://doi.org/10.1111/1755-0998.13171)\n- **SNPio**: Martin BT, Monaco DR, Sharabi N, Mussmann SM, Chafin TK (2026). SNPio: a Python interface for population genomic data processing. _BMC Bioinformatics_. doi: [10.1186/s12859-026-06546-5](https://doi.org/10.1186/s12859-026-06546-5)\n\nAn extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file. Each report also includes a methods paragraph and reference list for the tools used in that run.\n\nThis pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).\n\n> **The nf-core framework for community-curated bioinformatics pipelines.**\n>\n> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.\n>\n> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).\n",
+            "creativeWorkStatus": "Stable",
+            "datePublished": "2026-09-29T00:51:10+00:00",
+            "description": "<h1>\n  <picture>\n    <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/images/acamel_admixpipe_logo_dark.png\">\n    <img alt=\"aCaMEL/admixpipe\" src=\"docs/images/acamel_admixpipe_logo_light.png\" width=\"300\">\n  </picture>\n</h1>\n\n[![GitHub Actions CI Status](https://github.com/UARK-aCaMEL/admixpipe/actions/workflows/nf-test.yml/badge.svg)](https://github.com/UARK-aCaMEL/admixpipe/actions/workflows/nf-test.yml)\n[![GitHub Actions Linting Status](https://github.com/UARK-aCaMEL/admixpipe/actions/workflows/linting.yml/badge.svg)](https://github.com/UARK-aCaMEL/admixpipe/actions/workflows/linting.yml)\n[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)\n\n[![Nextflow](https://img.shields.io/badge/version-%E2%89%A525.10.4-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)\n[![nf-core template version](https://img.shields.io/badge/nf--core_template-4.1.0-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/4.1.0)\n[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)\n[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)\n[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/UARK-aCaMEL/admixpipe)\n\n## Introduction\n\n**aCaMEL/admixpipe** is a bioinformatics pipeline that infers population structure from SNP data. It takes a multi-sample VCF and a population map, and runs replicate [ADMIXTURE](https://dalexander.github.io/admixture/) analyses across a range of K using [AdmixPipe](https://github.com/stevemussmann/admixturePipeline). Replicates are aligned, a best K is chosen and model fit is assessed. All results are collected into one interactive report, which also records the full command and every parameter used. If sampling-site coordinates are given, the report includes ancestry maps.\n\n![aCaMEL/admixpipe workflow](docs/images/acamel_admixpipe_metro_map.png)\n\n1. Filter SNPs and samples, and summarise missing data, F<sub>ST</sub> and PCA ([`SNPio`](https://github.com/btmartin721/SNPio))\n2. Run ADMIXTURE for K = 1 to `--maxk`, with replicates and cross-validation ([`AdmixPipe`](https://github.com/stevemussmann/admixturePipeline), [`ADMIXTURE`](https://dalexander.github.io/admixture/), [`PLINK`](https://www.cog-genomics.org/plink/), [`VCFtools`](https://vcftools.github.io/))\n3. Align replicates and find clustering modes ([`CLUMPAK`](https://clumpak.tau.ac.il/), [`CLUMPP`](https://rosenberglab.stanford.edu/clumpp.html), [`distruct`](https://rosenberglab.stanford.edu/distruct.html))\n4. Choose the best K by cross-validation error, Evanno \u0394K or log-likelihood ([`--bestk_method`](docs/usage.md#choosing-the-best-k))\n5. Assess model fit ([`evalAdmix`](https://github.com/GenisGE/evalAdmix))\n6. Map ancestry proportions per site (optional)\n7. Build an interactive report ([`MultiQC`](http://multiqc.info/))\n\n## Getting started\n\nYou need [Nextflow](https://www.nextflow.io/docs/latest/install.html) (\u2265 25.10.4) and a container engine: Docker, Singularity/Apptainer or Podman. Conda is not supported.\n\nTo check that everything works, and to see what the outputs look like, run the pipeline on the bundled test dataset. It contains 185 samples from 14 sampling sites, with 9,345 SNPs, site coordinates and a river-network map layer:\n\n```bash\nnextflow run UARK-aCaMEL/admixpipe -profile test,docker --outdir test_results\n```\n\nUse `-profile test,singularity` on HPC systems, or add `emulate_amd64` on Apple Silicon (`-profile test,docker,emulate_amd64`). When the run finishes, open `test_results/report/multiqc_report.html` in a web browser.\n\n## Usage\n\nFirst, prepare a population map: a tab-delimited file with no header, giving each sample (as named in the VCF) and its population.\n\n`popmap.tsv`:\n\n```text\n86NCCFE01\tNCCFE\n86NCCFE02\tNCCFE\n86NCCOT01\tNCCOT\n```\n\nNow, you can run the pipeline using:\n\n```bash\nnextflow run UARK-aCaMEL/admixpipe \\\n   -profile <docker/singularity/.../institute> \\\n   --input genotypes.vcf.gz \\\n   --popmap popmap.tsv \\\n   --outdir <OUTDIR>\n```\n\n> [!WARNING]\n> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/running/run-pipelines#using-parameter-files).\n\nFor more details and further functionality, please refer to the [usage documentation](docs/usage.md) and the [parameter documentation](nextflow_schema.json) (or run with `--help`).\n\n## Pipeline output\n\nThe main output is an interactive report, `<OUTDIR>/report/multiqc_report.html`. For more details about the output files and reports, please refer to the [output documentation](docs/output.md).\n\n## Credits\n\naCaMEL/admixpipe was originally written by [Tyler K. Chafin](https://github.com/tkchafin).\n\nWe thank the following people for their assistance in the development of this pipeline:\n\n- [Steven M. Mussmann](https://github.com/stevemussmann), author of AdmixPipe\n- [Bradley T. Martin](https://github.com/btmartin721), author of SNPio\n\n## Contributions and Support\n\nIf you would like to contribute to this pipeline, please see the [contributing guidelines](docs/CONTRIBUTING.md). Bugs and questions can be reported on the [issue tracker](https://github.com/UARK-aCaMEL/admixpipe/issues).\n\n## Citations\n\nIf you use aCaMEL/admixpipe for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXXX](https://doi.org/10.5281/zenodo.XXXXXXX)\n\nPlease also cite the tools used by the pipeline:\n\n- **ADMIXTURE**: Alexander DH, Novembre J, Lange K (2009). Fast model-based estimation of ancestry in unrelated individuals. _Genome Research_ 19:1655\u20131664. doi: [10.1101/gr.094052.109](https://doi.org/10.1101/gr.094052.109)\n- **AdmixPipe**: Mussmann SM, Douglas MR, Chafin TK, Douglas ME (2020). AdmixPipe: population analyses in Admixture for non-model organisms. _BMC Bioinformatics_ 21:337. doi: [10.1186/s12859-020-03701-4](https://doi.org/10.1186/s12859-020-03701-4)\n- **CLUMPAK**: Kopelman NM, Mayzel J, Jakobsson M, Rosenberg NA, Mayrose I (2015). Clumpak: a program for identifying clustering modes and packaging population structure inferences across K. _Molecular Ecology Resources_ 15:1179\u20131191. doi: [10.1111/1755-0998.12387](https://doi.org/10.1111/1755-0998.12387)\n- **distruct**: Rosenberg NA (2004). distruct: a program for the graphical display of population structure. _Molecular Ecology Notes_ 4:137\u2013138. doi: [10.1046/j.1471-8286.2003.00566.x](https://doi.org/10.1046/j.1471-8286.2003.00566.x)\n- **evalAdmix**: Garcia-Erill G, Albrechtsen A (2020). Evaluation of model fit of inferred admixture proportions. _Molecular Ecology Resources_ 20:936\u2013949. doi: [10.1111/1755-0998.13171](https://doi.org/10.1111/1755-0998.13171)\n- **SNPio**: Martin BT, Monaco DR, Sharabi N, Mussmann SM, Chafin TK (2026). SNPio: a Python interface for population genomic data processing. _BMC Bioinformatics_. doi: [10.1186/s12859-026-06546-5](https://doi.org/10.1186/s12859-026-06546-5)\n\nAn extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file. Each report also includes a methods paragraph and reference list for the tools used in that run.\n\nThis pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).\n\n> **The nf-core framework for community-curated bioinformatics pipelines.**\n>\n> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.\n>\n> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).\n",
             "hasPart": [
                 {
                     "@id": "main.nf"
                 },
                 {
+                    "@id": "docs/images/acamel_admixpipe_metro_map.png"
+                },
+                {
                     "@id": "assets/"
+                },
+                {
+                    "@id": "bin/"
                 },
                 {
                     "@id": "conf/"
@@ -38,7 +44,13 @@
                     "@id": "docs/"
                 },
                 {
+                    "@id": "docs/images/"
+                },
+                {
                     "@id": "modules/"
+                },
+                {
+                    "@id": "modules/local/"
                 },
                 {
                     "@id": "modules/nf-core/"
@@ -86,14 +98,14 @@
                     "@id": ".prettierignore"
                 }
             ],
-            "isBasedOn": "https://github.com/aCaMEL/admixpipe",
+            "isBasedOn": "https://github.com/UARK-aCaMEL/admixpipe",
             "license": "MIT",
             "mainEntity": {
                 "@id": "main.nf"
             },
             "mentions": [
                 {
-                    "@id": "#150a14b4-c552-4c82-acf2-75a6d9d83a6c"
+                    "@id": "#02f6575a-0304-495a-bb87-394373659ebc"
                 }
             ],
             "name": "aCaMEL/admixpipe"
@@ -120,20 +132,39 @@
                 "SoftwareSourceCode",
                 "ComputationalWorkflow"
             ],
-            "contributor": [
+            "author": [
                 {
                     "@id": "https://orcid.org/0000-0001-8687-5905"
                 }
             ],
+            "contributor": [
+                {
+                    "@id": "https://orcid.org/0000-0002-5237-5088"
+                },
+                {
+                    "@id": "https://orcid.org/0000-0001-6234-3939"
+                },
+                {
+                    "@id": "https://orcid.org/0000-0001-9670-7825"
+                }
+            ],
             "dateCreated": "",
-            "dateModified": "2026-09-26T12:16:29Z",
+            "dateModified": "2026-09-28T17:51:10Z",
             "dct:conformsTo": "https://bioschemas.org/profiles/ComputationalWorkflow/1.0-RELEASE/",
+            "image": {
+                "@id": "docs/images/acamel_admixpipe_metro_map.png"
+            },
             "keywords": [
                 "nf-core",
                 "nextflow"
             ],
             "license": [
                 "MIT"
+            ],
+            "maintainer": [
+                {
+                    "@id": "https://orcid.org/0000-0001-8687-5905"
+                }
             ],
             "name": [
                 "aCaMEL/admixpipe"
@@ -145,11 +176,11 @@
                 "@id": "https://nf-co.re/"
             },
             "url": [
-                "https://github.com/aCaMEL/admixpipe",
-                "https://nf-co.re/aCaMEL/admixpipe/dev/"
+                "https://github.com/UARK-aCaMEL/admixpipe",
+                "https://nf-co.re/aCaMEL/admixpipe/1.0.0/"
             ],
             "version": [
-                "1.0dev"
+                "1.0.0"
             ]
         },
         {
@@ -165,11 +196,19 @@
             "version": "!>=25.10.4"
         },
         {
-            "@id": "#150a14b4-c552-4c82-acf2-75a6d9d83a6c",
+            "@id": "docs/images/acamel_admixpipe_metro_map.png",
+            "@type": [
+                "File",
+                "ImageObject"
+            ],
+            "name": "Workflow diagram"
+        },
+        {
+            "@id": "#02f6575a-0304-495a-bb87-394373659ebc",
             "@type": "TestSuite",
             "instance": [
                 {
-                    "@id": "#ce78454f-76c0-4f16-8d27-729b1e08be28"
+                    "@id": "#ff3beaba-0cd2-46df-be7a-5e1ecc9a0b33"
                 }
             ],
             "mainEntity": {
@@ -178,10 +217,10 @@
             "name": "Test suite for aCaMEL/admixpipe"
         },
         {
-            "@id": "#ce78454f-76c0-4f16-8d27-729b1e08be28",
+            "@id": "#ff3beaba-0cd2-46df-be7a-5e1ecc9a0b33",
             "@type": "TestInstance",
             "name": "GitHub Actions workflow for testing aCaMEL/admixpipe",
-            "resource": "repos/aCaMEL/admixpipe/actions/workflows/nf-test.yml",
+            "resource": "repos/UARK-aCaMEL/admixpipe/actions/workflows/nf-test.yml",
             "runsOn": {
                 "@id": "https://w3id.org/ro/terms/test#GithubService"
             },
@@ -201,6 +240,11 @@
             "description": "Additional files"
         },
         {
+            "@id": "bin/",
+            "@type": "Dataset",
+            "description": "Scripts that must be callable from a pipeline process"
+        },
+        {
             "@id": "conf/",
             "@type": "Dataset",
             "description": "Configuration files"
@@ -211,9 +255,19 @@
             "description": "Markdown files for documenting the pipeline"
         },
         {
+            "@id": "docs/images/",
+            "@type": "Dataset",
+            "description": "Images for the documentation files"
+        },
+        {
             "@id": "modules/",
             "@type": "Dataset",
             "description": "Modules used by the pipeline"
+        },
+        {
+            "@id": "modules/local/",
+            "@type": "Dataset",
+            "description": "Pipeline-specific modules"
         },
         {
             "@id": "modules/nf-core/",
@@ -299,7 +353,28 @@
         {
             "@id": "https://orcid.org/0000-0001-8687-5905",
             "@type": "Person",
-            "name": "Tyler K. Chafin"
+            "affiliation": "University of Arkansas, Fayetteville",
+            "name": "Tyler K. Chafin",
+            "url": "https://github.com/tkchafin"
+        },
+        {
+            "@id": "https://orcid.org/0000-0002-5237-5088",
+            "@type": "Person",
+            "affiliation": "Abernathy Fish Technology Center, U.S. Fish and Wildlife Service",
+            "name": "Steven M. Mussmann",
+            "url": "https://github.com/stevemussmann"
+        },
+        {
+            "@id": "https://orcid.org/0000-0001-6234-3939",
+            "@type": "Person",
+            "affiliation": "University of Arkansas, Fayetteville",
+            "name": "Marlis R. Douglas"
+        },
+        {
+            "@id": "https://orcid.org/0000-0001-9670-7825",
+            "@type": "Person",
+            "affiliation": "University of Arkansas, Fayetteville",
+            "name": "Michael E. Douglas"
         }
     ]
 }

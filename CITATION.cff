@@ -28,7 +28,8 @@ authors:
 license: MIT
 repository-code: https://github.com/UARK-aCaMEL/admixpipe
 url: https://github.com/UARK-aCaMEL/admixpipe
-version: 1.0dev
+version: 1.0.0
+date-released: 2026-09-28
 keywords:
   - nextflow
   - population genetics
