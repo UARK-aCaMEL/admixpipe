@@ -14,3 +14,5 @@ modules/nf-core/
 subworkflows/nf-core/
 # JOSS paper is Pandoc markdown; Prettier rewrites subscripts (F~ST~) as strikethrough
 paper/
+# Generated MultiQC report (example output)
+assets/example_report.html

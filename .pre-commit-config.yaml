@@ -13,6 +13,7 @@ repos:
         exclude: |
           (?x)^(
               .*ro-crate-metadata.json$|
+              assets/example_report\.html$|
               modules/(?!local/).*|
               subworkflows/(?!local/).*|
               .*\.snap$
@@ -21,6 +22,7 @@ repos:
         exclude: |
           (?x)^(
               .*ro-crate-metadata.json$|
+              assets/example_report\.html$|
               modules/(?!local/).*|
               subworkflows/(?!local/).*|
               .*\.snap$
