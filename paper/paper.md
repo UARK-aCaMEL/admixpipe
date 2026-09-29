@@ -85,9 +85,7 @@ aCaMEL/admixpipe extends an established analytical lineage: by September 2026, t
 
 # AI usage disclosure
 
-<!-- Authors: confirm that this statement accurately describes all uses of generative AI across the project before submission. -->
-
-Generative AI tools, including Claude Opus 5.5 (Anthropic, accessed through Claude Code) and OpenAI Codex, assisted with preparation of the software release and manuscript. Their uses included drafting documentation and the parameter schema, implementing the report’s parameter summary, identifying and correcting workflow defects, verifying references, and assisting with manuscript drafting and revision. The authors reviewed, edited, and tested all AI-assisted contributions, made all scientific and software-design decisions, and accept full responsibility for the software and manuscript.
+Generative AI tools assisted with preparation of the software release and manuscript. Their uses included drafting documentation and the parameter schema, implementing the report’s parameter summary, identifying and correcting workflow defects, verifying references, and assisting with manuscript drafting and revision. The authors reviewed, edited, and tested all AI-assisted contributions, made all scientific and software-design decisions, and accept full responsibility for the software and manuscript.
 
 # Acknowledgements
 
