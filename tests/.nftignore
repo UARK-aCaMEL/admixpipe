@@ -14,6 +14,7 @@ distruct/clumpakOutput/best_results/*.MinorCluster*
 evaladmix/*MinClust*
 pipeline_info/**
 report/*.html
+report/multiqc_plots/**
 report/multiqc_data/{llms-full.txt,multiqc.log,multiqc.parquet,multiqc_data.json,multiqc_software_versions.txt}
 snpio/snpio_filter/multiqc/multiqc_report.html
 snpio/snpio_filter/multiqc/multiqc_report_data/{llms-full.txt,multiqc.parquet,multiqc_data.json,table-*.txt}

@@ -29,6 +29,9 @@ nextflow_pipeline {
                 'distruct/*.MinorCluster*',
                 'distruct/clumpakOutput/best_results/*.MinorCluster*',
                 'evaladmix/*MinClust*',
+                // MultiQC's static plot export depends on the host (it fails under amd64 emulation)
+                'report/multiqc_plots',
+                'report/multiqc_plots/**',
                 // SNPio random table id (PCA data) and hashed HDF5 cache name
                 'snpio/snpio_filter/multiqc/multiqc_report_data/table-*.txt',
                 'snpio/snpio_filter/test_output/data/vcf/nremover/vcf_attributes_filtered_*.h5'
