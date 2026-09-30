@@ -3,6 +3,18 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### `Fixed`
+
+- SNPio 1.6.0–1.7.6 counted each homozygote four times when computing minor allele frequencies (SNPio [#51](https://github.com/btmartin721/SNPio/pull/51)). `--min_maf` therefore removed loci whose MAF passes the threshold when the minor allele is mostly in heterozygotes. On the test data, 1.0.0 kept 915 of the 1,130 loci that pass the filters. SNPio 1.7.7 computes MAF correctly.
+
+### `Dependencies`
+
+| Dependency | Old version | New version |
+| ---------- | ----------- | ----------- |
+| SNPio      | 1.7.6       | 1.7.7       |
+
 ## v1.0.0 - Chop Suey - [28-09-2026]
 
 Initial release of aCaMEL/admixpipe.
