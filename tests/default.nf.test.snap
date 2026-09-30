@@ -84,7 +84,7 @@
                     "python": "3.12.10"
                 },
                 "Workflow": {
-                    "aCaMEL/admixpipe": "v1.0.0"
+                    "aCaMEL/admixpipe": "v1.0.1"
                 }
             },
             [
