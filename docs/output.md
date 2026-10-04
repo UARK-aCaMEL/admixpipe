@@ -10,6 +10,8 @@ The directories listed below will be created in the results directory after the 
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
+![aCaMEL/admixpipe workflow](images/acamel_admixpipe_metro_map.png)
+
 - [SNPio](#snpio) - Filtered VCF, missing data, F<sub>ST</sub> and PCA
 - [ADMIXTURE](#admixture) - Ancestry estimates for every K and replicate
 - [CLUMPAK](#clumpak) - Replicate alignment and clustering modes
