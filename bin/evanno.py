@@ -15,12 +15,17 @@ Outputs a table with, for each K:
     sd_Lpp      √[σ(K+1)^2 + 4 σ(K)^2 + σ(K-1)^2]
     DeltaK      |Lpp| / σ(K)
 
-Note: for K=1 or K=max, some fields will be NaN.
+Note: for K=1 or K=max, some fields will be NaN. DeltaK is also NaN where
+σ(K) < 1e-7 (replicates with the same log-likelihood), the cutoff STRUCTURE
+HARVESTER (Earl & vonHoldt 2012) uses to refuse the Evanno test.
 """
 import sys
 import argparse
 import pandas as pd
 import numpy as np
+
+# σ(K) below this is treated as zero, as in STRUCTURE HARVESTER
+SD_EPSILON = 1e-7
 
 def compute_evanno(df):
     # Ensure sorted by K
@@ -42,8 +47,8 @@ def compute_evanno(df):
         + sd.shift(1).pow(2)
     )
 
-    # Delta K = |L''(K)| / σ(K)
-    DeltaK = Lpp.abs() / sd
+    # Delta K = |L''(K)| / σ(K), undefined when σ(K) is ~0
+    DeltaK = (Lpp.abs() / sd).where(sd >= SD_EPSILON)
 
     # Assemble output
     out = pd.DataFrame({

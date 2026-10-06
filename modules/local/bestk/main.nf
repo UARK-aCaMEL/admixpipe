@@ -151,7 +151,15 @@ process BESTK {
     if method == "cv":
         best_k = choose_min_metric(cv_file, "Mean")
     elif method == "evanno":
-        best_k = choose_max_metric(evanno_file, "DeltaK")
+        # DeltaK is empty where undefined: the first and last K, and any K whose
+        # replicates have the same log-likelihood (SD = 0)
+        try:
+            best_k = choose_max_metric(evanno_file, "DeltaK")
+        except ValueError:
+            raise ValueError(
+                "Evanno delta K is undefined for every K. It needs at least three values of K, "
+                "and replicates whose log-likelihoods differ. Use another --bestk_method."
+            )
     elif method == "lnl":
         best_k = choose_elbow(evanno_file, "Mean", use_abs=False)
     elif method == "l1":

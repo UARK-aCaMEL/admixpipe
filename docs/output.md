@@ -85,7 +85,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - `cvsum/`
   - `cv_output.txt`, `ll_output.txt`: cross-validation error and log-likelihood for each K.
 - `evanno/`
-  - `evanno_metrics.tsv`: L(K), L′(K), L″(K) and Evanno ΔK for each K.
+  - `evanno_metrics.tsv`: L(K), L′(K), L″(K) and Evanno ΔK for each K. ΔK is empty where it is undefined: at the first and last K, and at any K whose replicates all have the same log-likelihood (SD of L(K) < 10⁻⁷). The report marks the latter with a red asterisk.
 - `bestk/`
   - `bestK.txt`: the K chosen by `--bestk_method`.
 

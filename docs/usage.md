@@ -77,7 +77,7 @@ Each `path` starts with the name of the `--geo_data_dir` directory. `style` take
 | `l1`           | the elbow of L′(K)                              |
 | `l2`           | the elbow of \|L″(K)\|                          |
 
-K = 1 is never selected. No single method is reliable in every case, so check the barplots, evalAdmix residuals and PCA before interpreting results.
+K = 1 is never selected. Evanno ΔK is undefined at the first and last K, and at any K whose replicates all have the same log-likelihood (SD of L(K) < 10⁻⁷, the cutoff STRUCTURE HARVESTER uses); `evanno` chooses among the other K. No single method is reliable in every case, so check the barplots, evalAdmix residuals and PCA before interpreting results.
 
 ## Running the pipeline
 

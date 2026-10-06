@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### `Fixed`
+
+- Evanno ΔK was infinite at any K whose replicates all converged to the same log-likelihood (SD of L(K) = 0). The report's ΔK plot left that K out, and `--bestk_method evanno` chose it. ΔK is now undefined there (SD < 10⁻⁷, the cutoff STRUCTURE HARVESTER uses): `evanno_metrics.tsv` leaves it empty, the plot marks it with a red asterisk, and `--bestk_method evanno` chooses among the other K.
+
 ## v1.0.1 - Chop Suey (Patch 1) - [30-09-2026]
 
 ### `Fixed`

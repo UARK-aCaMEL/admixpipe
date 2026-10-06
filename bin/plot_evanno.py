@@ -75,6 +75,26 @@ def generate_plot(input_file, output_file, header_comment, bestk=None):
         marker=dict(color='blue')
     ), row=2, col=2)
 
+    # ΔK is undefined where L″(K) exists but σ(K) = 0 (identical replicate
+    # log-likelihoods); mark those K with a red asterisk at the top of the panel
+    undefined = df.loc[df["Lpp"].notna() & df["DeltaK"].isna(), "K"].astype(int).tolist()
+    if undefined:
+        ymax = df["DeltaK"].max()
+        ymax = 1 if pd.isna(ymax) else ymax
+        fig.add_trace(go.Scatter(
+            x=undefined, y=[ymax] * len(undefined), mode="markers",
+            name="ΔK undefined",
+            marker=dict(symbol="asterisk-open", size=14, color='red', line=dict(width=2, color='red')),
+            hovertemplate="K=%{x}: ΔK undefined, L(K) is identical across replicates (SD = 0)<extra></extra>"
+        ), row=2, col=2)
+        ks = ", ".join(str(k) for k in undefined)
+        fig.add_annotation(
+            text=f"<span style='color:red'>*</span> ΔK undefined at K = {ks}: L(K) is identical across replicates (SD = 0)",
+            xref="paper", yref="paper", x=1, y=-0.07,
+            xanchor="right", yanchor="top", showarrow=False, font=dict(size=12)
+        )
+        fig.update_layout(margin=dict(b=100))
+
     # Annotate best K if provided
     if bestk is not None:
         fig.add_vline(
