@@ -91,7 +91,7 @@ Generative AI tools assisted with preparation of the software release and manusc
 
 # Acknowledgements
 
-We thank the nf-core community for providing the pipeline template. Applications of the pipeline were supported by the U.S. Fish and Wildlife Service State Wildlife Grants Program through the Arkansas Game and Fish Commission (AR-T-F22AF03392) and by the Arkansas Game and Fish Commission (SL4124). M.R.D. and M.E.D. acknowledge support from the Bruker Professorship in Life Sciences and the 21st Century Chair in Global Change Biology, respectively, at the University of Arkansas. The funders had no role in the design of the software or preparation of the manuscript.
+We thank the nf-core community for providing the pipeline template. Applications of the pipeline were supported by the U.S. Fish and Wildlife Service State Wildlife Grants Program through the Arkansas Game and Fish Commission (AR-T-F22AF03392). M.R.D. and M.E.D. acknowledge support from the Bruker Professorship in Life Sciences and the 21st Century Chair in Global Change Biology, respectively, at the University of Arkansas. The funders had no role in the design of the software or preparation of the manuscript.
 
 Links to non-Service websites do not imply official U.S. Fish and Wildlife Service endorsement of the opinions or ideas expressed therein or guarantee the validity of the information provided. The findings, conclusions, and opinions expressed in this article are those of the authors and do not necessarily represent the views of the U.S. Fish and Wildlife Service.
 
